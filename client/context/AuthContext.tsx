@@ -71,14 +71,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 text-gray-900">
-        <h2 className="text-2xl font-bold text-gray-500 animate-pulse">Loading TalkFlow...</h2>
-      </div>
-    );
-  }
-
   return (
     <AuthContext.Provider value={{ user, loading, login, register, logout, refreshUser }}>
       {children}

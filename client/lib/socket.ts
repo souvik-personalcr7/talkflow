@@ -2,21 +2,13 @@ import { io, Socket } from 'socket.io-client';
 
 const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:5000';
 
-let socket: Socket | null = null;
-
-export const initSocket = () => {
-  if (!socket) {
-    socket = io(SOCKET_URL, {
-      autoConnect: false, // Don't connect permanently until authentication is implemented
-      withCredentials: true,
-    });
-  }
-  return socket;
-};
-
-export const getSocket = () => {
-  if (!socket) {
-    throw new Error('Socket not initialized! Call initSocket first.');
-  }
-  return socket;
-};
+// Global single socket instance
+// autoConnect is false so we can connect only when authenticated
+export const socket: Socket = io(SOCKET_URL, {
+  autoConnect: false,
+  withCredentials: true,
+  reconnection: true,
+  reconnectionAttempts: Infinity,
+  reconnectionDelay: 1000,
+  reconnectionDelayMax: 5000,
+});

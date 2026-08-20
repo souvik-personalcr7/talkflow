@@ -3,18 +3,22 @@
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useUsers } from '@/hooks/useUsers';
+
 import { useDebounce } from '@/hooks/useDebounce';
-import { User } from '@/types';
+import { User, Message } from '@/types';
 import UserSearch from './UserSearch';
 import UserList from './UserList';
 import ConversationList from './ConversationList';
+import { ConnectionStatus } from '../chat/ConnectionStatus';
 
 interface SidebarProps {
   onSelectUser: (user: User) => void;
   selectedUserId?: string;
+  unreadCounts?: Record<string, number>;
+  messagesByConversation?: Record<string, Message[]>;
 }
 
-export default function Sidebar({ onSelectUser, selectedUserId }: SidebarProps) {
+export default function Sidebar({ onSelectUser, selectedUserId, unreadCounts, messagesByConversation }: SidebarProps) {
   const { user: currentUser, logout } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
@@ -23,8 +27,9 @@ export default function Sidebar({ onSelectUser, selectedUserId }: SidebarProps) 
   return (
     <div className="w-full md:w-80 h-full bg-white border-r border-gray-200 flex flex-col">
       {/* Header */}
-      <div className="p-4 border-b border-gray-100 flex items-center justify-between">
+      <div className="p-4 border-b border-gray-100 flex flex-col items-start justify-center gap-2">
         <h1 className="text-xl font-extrabold tracking-tight text-gray-900">TalkFlow</h1>
+        <ConnectionStatus />
       </div>
 
       {/* AI Assistant Button */}
@@ -54,7 +59,12 @@ export default function Sidebar({ onSelectUser, selectedUserId }: SidebarProps) 
           onSelectUser={onSelectUser}
           selectedUserId={selectedUserId}
         />
-        <ConversationList />
+        <ConversationList 
+          onSelectUser={onSelectUser}
+          selectedUserId={selectedUserId}
+          unreadCounts={unreadCounts}
+          messagesByConversation={messagesByConversation}
+        />
       </div>
 
       {/* Footer Current User */}

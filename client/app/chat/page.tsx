@@ -1,37 +1,76 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { redirect } from 'next/navigation';
 import Sidebar from '@/components/sidebar/Sidebar';
 import ChatWindow from '@/components/chat/ChatWindow';
-import { User } from '@/types';
+import { User, Conversation } from '@/types';
+import { useConversations } from '@/hooks/useConversations';
+import { useSocketMessages } from '@/hooks/useSocketMessages';
+import { useSocket } from '@/hooks/useSocket';
 
 export default function ChatDashboard() {
-  const { user } = useAuth();
+  const { user, loading } = useAuth();
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [activeConversation, setActiveConversation] = useState<Conversation | null>(null);
+  
+  const { createOrGetConversation } = useConversations();
+  const { messages, unreadCounts, sendMessage, messagesByConversation } = useSocketMessages(activeConversation?.id);
+  
+  // Initialize socket connection
+  useSocket();
 
-  if (!user) return null;
+  const handleSelectUser = async (u: User) => {
+    setSelectedUser(u);
+    if (u.id === 'ai') {
+      setActiveConversation(null);
+      return;
+    }
+    const conv = await createOrGetConversation(u.id);
+    setActiveConversation(conv);
+  };
+
+  const handleBack = () => {
+    setSelectedUser(null);
+    setActiveConversation(null);
+  };
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 text-gray-900">
+        <h2 className="text-2xl font-bold text-gray-500 animate-pulse">Loading TalkFlow...</h2>
+      </div>
+    );
+  }
+
+  if (!user) {
+    redirect('/login');
+  }
 
   return (
     <div className="h-screen w-full flex bg-gray-50 overflow-hidden font-sans">
-      {/* 
-        Mobile Layout Logic:
-        If a user is selected on mobile, hide the sidebar and show the chat window.
-        If no user is selected, show the sidebar.
-        On Desktop (md+), show both.
-      */}
-      
       <div className={`w-full md:w-80 h-full flex-shrink-0 ${selectedUser ? 'hidden md:block' : 'block'}`}>
         <Sidebar 
-          onSelectUser={(u: User) => setSelectedUser(u)} 
+          onSelectUser={handleSelectUser} 
           selectedUserId={selectedUser?.id}
+          unreadCounts={unreadCounts}
+          messagesByConversation={messagesByConversation}
         />
       </div>
 
       <div className={`flex-1 h-full min-w-0 ${!selectedUser ? 'hidden md:flex' : 'flex'}`}>
         <ChatWindow 
-          selectedUser={selectedUser} 
-          onBack={() => setSelectedUser(null)} 
+          selectedUser={selectedUser}
+          activeConversation={activeConversation}
+          messages={messages}
+          messagesLoading={false}
+          onSendMessage={(text) => {
+            if (activeConversation && selectedUser) {
+              sendMessage(activeConversation.id, selectedUser.id, text);
+            }
+          }}
+          onBack={handleBack} 
         />
       </div>
     </div>

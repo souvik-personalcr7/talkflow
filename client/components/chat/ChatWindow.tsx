@@ -1,16 +1,53 @@
 'use client';
 
-import { User } from '@/types';
+import { User, Conversation, Message } from '@/types';
+import { useState, useEffect } from 'react';
 import ChatHeader from './ChatHeader';
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
+import { socket } from '../../lib/socket';
 
 interface ChatWindowProps {
   selectedUser: User | null;
+  activeConversation?: Conversation | null;
+  messages?: Message[];
+  messagesLoading?: boolean;
+  onSendMessage?: (text: string) => void | Promise<any>;
   onBack: () => void;
 }
 
-export default function ChatWindow({ selectedUser, onBack }: ChatWindowProps) {
+export default function ChatWindow({ 
+  selectedUser, 
+  activeConversation = null,
+  messages = [],
+  messagesLoading = false,
+  onSendMessage,
+  onBack 
+}: ChatWindowProps) {
+  const [isTyping, setIsTyping] = useState(false);
+
+  useEffect(() => {
+    const handleTypingStart = (payload: { conversationId: string, userId: string }) => {
+      if (activeConversation && payload.conversationId === activeConversation.id && payload.userId === selectedUser?.id) {
+        setIsTyping(true);
+      }
+    };
+
+    const handleTypingStop = (payload: { conversationId: string, userId: string }) => {
+      if (activeConversation && payload.conversationId === activeConversation.id && payload.userId === selectedUser?.id) {
+        setIsTyping(false);
+      }
+    };
+
+    socket.on('typing:start', handleTypingStart);
+    socket.on('typing:stop', handleTypingStop);
+
+    return () => {
+      socket.off('typing:start', handleTypingStart);
+      socket.off('typing:stop', handleTypingStop);
+    };
+  }, [activeConversation, selectedUser]);
+
   if (!selectedUser) {
     return (
       <div className="hidden md:flex flex-1 flex-col items-center justify-center bg-gray-50 text-center px-4 border-l border-gray-200">
@@ -35,8 +72,23 @@ export default function ChatWindow({ selectedUser, onBack }: ChatWindowProps) {
   return (
     <div className="flex-1 flex flex-col bg-white h-full border-l border-gray-200">
       <ChatHeader user={selectedUser} onBack={onBack} />
-      <MessageList selectedUser={selectedUser} />
-      <MessageInput />
+      <MessageList 
+        selectedUser={selectedUser} 
+        activeConversation={activeConversation}
+        messages={messages}
+        messagesLoading={messagesLoading}
+      />
+      {isTyping && (
+        <div className="px-6 py-2 text-xs text-gray-500 italic animate-pulse">
+          {selectedUser.name} is typing...
+        </div>
+      )}
+      <MessageInput 
+        onSendMessage={onSendMessage}
+        disabled={selectedUser.id === 'ai'} 
+        conversationId={activeConversation?.id}
+        receiverId={selectedUser.id}
+      />
     </div>
   );
 }

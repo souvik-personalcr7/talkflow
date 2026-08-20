@@ -17,6 +17,7 @@ const server = http.createServer(app);
 
 import authRoutes from './routes/authRoutes';
 import userRoutes from './routes/userRoutes';
+import conversationRoutes from './routes/conversationRoutes';
 
 // Configure CORS
 const corsOptions = {
@@ -30,11 +31,14 @@ app.use(cookieParser());
 
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
+app.use('/api/conversations', conversationRoutes);
 
 // Basic route to verify server is running
 app.get('/', (req, res) => {
   res.send('TalkFlow API is running...');
 });
+
+import { initializeSocket } from './socket';
 
 // Configure Socket.IO
 const io = new Server(server, {
@@ -44,13 +48,7 @@ const io = new Server(server, {
   },
 });
 
-io.on('connection', (socket) => {
-  console.log('A user connected:', socket.id);
-
-  socket.on('disconnect', () => {
-    console.log('User disconnected:', socket.id);
-  });
-});
+initializeSocket(io);
 
 const PORT = process.env.PORT || 5000;
 
