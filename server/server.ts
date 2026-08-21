@@ -18,6 +18,7 @@ const server = http.createServer(app);
 import authRoutes from './routes/authRoutes';
 import userRoutes from './routes/userRoutes';
 import conversationRoutes from './routes/conversationRoutes';
+import aiRoutes from './routes/aiRoutes';
 
 // Configure CORS
 const corsOptions = {
@@ -32,6 +33,7 @@ app.use(cookieParser());
 app.use('/api/auth', authRoutes);
 app.use('/api/users', userRoutes);
 app.use('/api/conversations', conversationRoutes);
+app.use('/api/ai', aiRoutes);
 
 // Basic route to verify server is running
 app.get('/', (req, res) => {

@@ -5,6 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { redirect } from 'next/navigation';
 import Sidebar from '@/components/sidebar/Sidebar';
 import ChatWindow from '@/components/chat/ChatWindow';
+import AIChatWindow from '@/components/chat/AIChatWindow';
 import { User, Conversation } from '@/types';
 import { useConversations } from '@/hooks/useConversations';
 import { useSocketMessages } from '@/hooks/useSocketMessages';
@@ -60,18 +61,22 @@ export default function ChatDashboard() {
       </div>
 
       <div className={`flex-1 h-full min-w-0 ${!selectedUser ? 'hidden md:flex' : 'flex'}`}>
-        <ChatWindow 
-          selectedUser={selectedUser}
-          activeConversation={activeConversation}
-          messages={messages}
-          messagesLoading={false}
-          onSendMessage={(text) => {
-            if (activeConversation && selectedUser) {
-              sendMessage(activeConversation.id, selectedUser.id, text);
-            }
-          }}
-          onBack={handleBack} 
-        />
+        {selectedUser?.id === 'ai' ? (
+          <AIChatWindow onBack={handleBack} />
+        ) : (
+          <ChatWindow 
+            selectedUser={selectedUser}
+            activeConversation={activeConversation}
+            messages={messages}
+            messagesLoading={false}
+            onSendMessage={(text) => {
+              if (activeConversation && selectedUser) {
+                sendMessage(activeConversation.id, selectedUser.id, text);
+              }
+            }}
+            onBack={handleBack} 
+          />
+        )}
       </div>
     </div>
   );

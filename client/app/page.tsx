@@ -1,4 +1,24 @@
+'use client';
+
+import { useAuth } from '@/hooks/useAuth';
+import { redirect } from 'next/navigation';
+import Link from 'next/link';
+
 export default function Home() {
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-white text-gray-900">
+        <h2 className="text-2xl font-bold text-gray-500 animate-pulse">Loading TalkFlow...</h2>
+      </div>
+    );
+  }
+
+  if (user) {
+    redirect('/chat');
+  }
+
   return (
     <div className="flex min-h-screen flex-col items-center justify-center bg-white text-gray-900">
       <main className="flex flex-col items-center justify-center w-full flex-1 px-20 text-center">
@@ -15,9 +35,11 @@ export default function Home() {
         </p>
 
         <div className="mt-10">
-          <button className="px-8 py-3 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition duration-300 shadow-md">
-            Get Started
-          </button>
+          <Link href="/login">
+            <button className="px-8 py-3 bg-black text-white rounded-lg font-semibold hover:bg-gray-800 transition duration-300 shadow-md">
+              Get Started
+            </button>
+          </Link>
         </div>
       </main>
     </div>

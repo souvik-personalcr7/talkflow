@@ -20,10 +20,10 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
             : 'bg-white border border-gray-200 text-gray-900 rounded-bl-sm'
         }`}
       >
-        <p className="text-[15px] leading-relaxed break-words whitespace-pre-wrap">{message.text}</p>
+        <p className="text-base leading-relaxed break-words whitespace-pre-wrap">{message.text}</p>
         <div 
-          className={`text-[11px] mt-1 text-right flex justify-end items-center space-x-1 ${
-            isOwnMessage ? 'text-gray-300' : 'text-gray-400'
+          className={`text-xs mt-1 text-right flex justify-end items-center space-x-1 ${
+            isOwnMessage ? 'text-gray-400' : 'text-gray-500'
           }`}
         >
           <span>{format(new Date(message.createdAt), 'h:mm a')}</span>
