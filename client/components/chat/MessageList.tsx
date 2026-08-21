@@ -27,7 +27,7 @@ export default function MessageList({ selectedUser, activeConversation, messages
         <div className="max-w-md">
           <div className="text-5xl mb-4">🤖</div>
           <h3 className="text-xl font-bold text-gray-900 mb-2">Talk to TalkFlow AI</h3>
-          <p className="text-gray-500">Your AI assistant will be available soon.</p>
+          <p className="text-gray-600">Your AI assistant will be available soon.</p>
         </div>
       </div>
     );
@@ -36,7 +36,7 @@ export default function MessageList({ selectedUser, activeConversation, messages
   if (messagesLoading && messages.length === 0) {
     return (
       <div className="flex-1 overflow-y-auto bg-gray-50 p-6 flex items-center justify-center">
-        <div className="flex flex-col items-center space-y-4 text-gray-400">
+        <div className="flex flex-col items-center space-y-4 text-gray-600">
           <div className="w-8 h-8 border-4 border-gray-300 border-t-indigo-600 rounded-full animate-spin"></div>
           <p className="text-sm">Loading messages...</p>
         </div>
@@ -56,7 +56,7 @@ export default function MessageList({ selectedUser, activeConversation, messages
               💬
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-2">No messages yet</h3>
-            <p className="text-gray-500">Start the conversation with {selectedUser.name}</p>
+            <p className="text-gray-600">Start the conversation with {selectedUser.name}</p>
           </div>
         </div>
       ) : (

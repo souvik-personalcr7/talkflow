@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { useAIChat, AIMessage } from '@/hooks/useAIChat';
 import ReactMarkdown from 'react-markdown';
+import rehypeSanitize from 'rehype-sanitize';
 import { format } from 'date-fns';
 import { ArrowLeft, Send, Square, RefreshCw, Copy, RotateCcw } from 'lucide-react';
 
@@ -139,7 +140,7 @@ export default function AIChatWindow({ onBack }: AIChatWindowProps) {
                         <div className="text-base font-medium text-red-700">{msg.content}</div>
                       ) : (
                         <div className="text-base leading-relaxed break-words prose max-w-none prose-p:text-gray-900 prose-headings:text-gray-900 prose-strong:text-gray-900 prose-li:text-gray-900">
-                          <ReactMarkdown>{msg.content}</ReactMarkdown>
+                          <ReactMarkdown rehypePlugins={[rehypeSanitize]}>{msg.content}</ReactMarkdown>
                           {msg.status === 'streaming' && (
                             <span className="inline-block ml-1 w-1.5 h-4 bg-gray-500 animate-pulse align-middle" />
                           )}

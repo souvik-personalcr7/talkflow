@@ -16,8 +16,9 @@ export default function ChatDashboard() {
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [activeConversation, setActiveConversation] = useState<Conversation | null>(null);
   
+  const [messagesLoading, setMessagesLoading] = useState(false);
   const { createOrGetConversation } = useConversations();
-  const { messages, unreadCounts, sendMessage, messagesByConversation } = useSocketMessages(activeConversation?.id);
+  const { messages, unreadCounts, sendMessage, messagesByConversation, fetchMessages } = useSocketMessages(activeConversation?.id);
   
   // Initialize socket connection
   useSocket();
@@ -28,8 +29,13 @@ export default function ChatDashboard() {
       setActiveConversation(null);
       return;
     }
+    setMessagesLoading(true);
     const conv = await createOrGetConversation(u.id);
     setActiveConversation(conv);
+    if (conv) {
+      await fetchMessages(u.id, conv.id);
+    }
+    setMessagesLoading(false);
   };
 
   const handleBack = () => {
@@ -68,7 +74,7 @@ export default function ChatDashboard() {
             selectedUser={selectedUser}
             activeConversation={activeConversation}
             messages={messages}
-            messagesLoading={false}
+            messagesLoading={messagesLoading}
             onSendMessage={(text) => {
               if (activeConversation && selectedUser) {
                 sendMessage(activeConversation.id, selectedUser.id, text);

@@ -75,7 +75,7 @@ export default function Sidebar({ onSelectUser, selectedUserId, unreadCounts, me
           <div className="flex items-center min-w-0">
             <div className="flex-1 min-w-0">
               <p className="text-sm font-medium text-gray-900 truncate">{currentUser.name}</p>
-              <p className="text-xs text-gray-500 truncate">@{currentUser.username}</p>
+              <p className="text-xs text-gray-600 truncate">@{currentUser.username}</p>
             </div>
           </div>
           <button 

@@ -4,6 +4,7 @@ import React, { createContext, useState, useEffect, ReactNode } from 'react';
 import api from '../lib/api';
 import { User } from '../types';
 import { useRouter, usePathname } from 'next/navigation';
+import { useToast } from '../contexts/ToastContext';
 
 interface AuthContextType {
   user: User | null;
@@ -21,6 +22,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [loading, setLoading] = useState<boolean>(true);
   const router = useRouter();
   const pathname = usePathname();
+  const { showToast } = useToast();
 
   const refreshUser = async () => {
     try {
@@ -40,29 +42,55 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   useEffect(() => {
     refreshUser();
+
+    const handleUnauthorized = () => {
+      setUser(null);
+      router.push('/login');
+      showToast('Session expired. Please log in again.', 'error');
+    };
+
+    window.addEventListener('auth:unauthorized', handleUnauthorized);
+    return () => window.removeEventListener('auth:unauthorized', handleUnauthorized);
   }, []);
 
   const login = async (data: any) => {
-    const res = await api.post('/auth/login', data);
-    if (res.data.success) {
-      setUser(res.data.data.user);
-      router.push('/chat');
+    try {
+      const res = await api.post('/auth/login', data);
+      if (res.data.success) {
+        setUser(res.data.data.user);
+        router.push('/chat');
+        showToast('Logged in successfully', 'success');
+      }
+      return res.data;
+    } catch (error: any) {
+      if (error.response?.data?.message) {
+        showToast(error.response.data.message, 'error');
+      }
+      throw error;
     }
-    return res.data;
   };
 
   const register = async (data: any) => {
-    const res = await api.post('/auth/register', data);
-    if (res.data.success) {
-      setUser(res.data.data.user);
-      router.push('/chat');
+    try {
+      const res = await api.post('/auth/register', data);
+      if (res.data.success) {
+        setUser(res.data.data.user);
+        router.push('/chat');
+        showToast('Registered successfully', 'success');
+      }
+      return res.data;
+    } catch (error: any) {
+      if (error.response?.data?.message) {
+        showToast(error.response.data.message, 'error');
+      }
+      throw error;
     }
-    return res.data;
   };
 
   const logout = async () => {
     try {
       await api.post('/auth/logout');
+      showToast('Logged out successfully', 'info');
     } catch (error) {
       console.error(error);
     } finally {

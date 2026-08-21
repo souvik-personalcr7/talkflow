@@ -39,7 +39,14 @@ export const createOrGetConversation = async (req: Request, res: Response): Prom
           conversation: {
             id: existingConversation._id,
             type: existingConversation.type,
-            participants: existingConversation.participants,
+            participants: existingConversation.participants.map((p: any) => ({
+              id: p._id || p,
+              name: p.name,
+              username: p.username,
+              email: p.email,
+              profileImage: p.profileImage,
+              isOnline: p.isOnline,
+            })),
             lastMessage: existingConversation.lastMessage,
             lastMessageAt: existingConversation.lastMessageAt,
             createdAt: existingConversation.createdAt,
@@ -62,7 +69,9 @@ export const createOrGetConversation = async (req: Request, res: Response): Prom
         conversation: {
           id: newConversation._id,
           type: newConversation.type,
-          participants: newConversation.participants,
+          participants: newConversation.participants.map((p: any) => ({
+            id: p._id || p,
+          })),
           createdAt: newConversation.createdAt,
           updatedAt: newConversation.updatedAt,
         }
@@ -92,7 +101,14 @@ export const getConversations = async (req: Request, res: Response): Promise<voi
     const formattedConversations = conversations.map((conv) => ({
       id: conv._id,
       type: conv.type,
-      participants: conv.participants,
+      participants: conv.participants.map((p: any) => ({
+        id: p._id,
+        name: p.name,
+        username: p.username,
+        email: p.email,
+        profileImage: p.profileImage,
+        isOnline: p.isOnline
+      })),
       lastMessage: conv.lastMessage,
       lastMessageAt: conv.lastMessageAt,
       createdAt: conv.createdAt,
@@ -145,7 +161,14 @@ export const getConversation = async (req: Request, res: Response): Promise<void
         conversation: {
           id: conversation._id,
           type: conversation.type,
-          participants: conversation.participants,
+          participants: conversation.participants.map((p: any) => ({
+            id: p._id,
+            name: p.name,
+            username: p.username,
+            email: p.email,
+            profileImage: p.profileImage,
+            isOnline: p.isOnline
+          })),
           lastMessage: conversation.lastMessage,
           lastMessageAt: conversation.lastMessageAt,
           createdAt: conversation.createdAt,

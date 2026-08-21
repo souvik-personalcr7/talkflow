@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { socket } from '../lib/socket';
 import { Message } from '../types';
+import api from '../lib/api';
 
 export const useSocketMessages = (activeConversationId?: string) => {
   // Store messages per conversation in frontend memory only
@@ -11,6 +12,7 @@ export const useSocketMessages = (activeConversationId?: string) => {
 
   useEffect(() => {
     const handleNewMessage = (newMessage: Message) => {
+      console.log(`[CHAT RECEIVED] senderId: ${newMessage.senderId}, text: ${newMessage.text}`);
       const convId = newMessage.conversationId;
       
       setMessagesByConversation(prev => {
@@ -68,11 +70,42 @@ export const useSocketMessages = (activeConversationId?: string) => {
     }));
   }, []);
 
+  const fetchMessages = useCallback(async (otherUserId: string, conversationId: string) => {
+    try {
+      const response = await api.get(`/messages/${otherUserId}`);
+      if (response.data.success && response.data.data.messages) {
+        setMessagesByConversation(prev => {
+          // Merge fetched messages with existing ones to preserve any pending real-time messages
+          // Deduplicate by message id
+          const existing = prev[conversationId] || [];
+          const fetched = response.data.data.messages;
+          
+          const combined = [...fetched, ...existing];
+          // Use Map to deduplicate by id, keeping the latest one
+          const uniqueMap = new Map();
+          combined.forEach(msg => uniqueMap.set(msg.id, msg));
+          
+          const sortedAndUnique = Array.from(uniqueMap.values()).sort(
+            (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+          );
+          
+          return {
+            ...prev,
+            [conversationId]: sortedAndUnique
+          };
+        });
+      }
+    } catch (error) {
+      console.error('Failed to fetch messages:', error);
+    }
+  }, []);
+
   return {
     messages: activeConversationId ? (messagesByConversation[activeConversationId] || []) : [],
     unreadCounts,
     sendMessage,
     clearMessages,
+    fetchMessages,
     messagesByConversation // Expose this if needed for previews
   };
 };

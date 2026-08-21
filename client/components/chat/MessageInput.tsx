@@ -71,7 +71,7 @@ export default function MessageInput({ onSendMessage, disabled = false, conversa
           value={text}
           onChange={handleTyping}
           onKeyDown={handleKeyDown}
-          className="flex-1 bg-gray-100 border-transparent rounded-full px-4 py-2.5 text-sm focus:bg-white focus:border-gray-300 focus:ring-2 focus:ring-black outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex-1 bg-gray-100 border-transparent rounded-full px-4 py-2.5 text-sm text-gray-900 placeholder-gray-500 focus:bg-white focus:border-gray-300 focus:ring-2 focus:ring-black outline-none transition-all disabled:opacity-50 disabled:cursor-not-allowed"
           placeholder="Type a message..."
           disabled={disabled || isSending}
         />

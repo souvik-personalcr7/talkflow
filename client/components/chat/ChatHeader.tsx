@@ -41,7 +41,7 @@ export default function ChatHeader({ user, onBack }: ChatHeaderProps) {
         
         <div className="flex-1 min-w-0">
           <h2 className="text-sm font-bold text-gray-900 truncate">{user.name}</h2>
-          <div className="flex items-center text-xs text-gray-500">
+          <div className="flex items-center text-xs text-gray-600">
             {user.id !== 'ai' && (
               <>
                 <span className="truncate mr-2">@{user.username}</span>
@@ -51,7 +51,7 @@ export default function ChatHeader({ user, onBack }: ChatHeaderProps) {
                     Online
                   </span>
                 ) : (
-                  <span className="text-gray-400">Offline</span>
+                  <span className="text-gray-500">Offline</span>
                 )}
               </>
             )}

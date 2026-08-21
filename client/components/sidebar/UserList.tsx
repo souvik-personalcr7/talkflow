@@ -34,12 +34,12 @@ export default function UserList({ users, loading, error, onSelectUser, selected
   }
 
   if (users.length === 0) {
-    return <div className="p-4 text-sm text-gray-500 text-center">No other users found.</div>;
+    return <div className="p-4 text-sm text-gray-600 text-center">No other users found.</div>;
   }
 
   return (
     <div className="flex-1 overflow-y-auto">
-      <div className="px-4 py-2 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+      <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
         People
       </div>
       <ul className="space-y-1 px-2">
@@ -65,7 +65,7 @@ export default function UserList({ users, loading, error, onSelectUser, selected
               </div>
               <div className="flex-1 min-w-0">
                 <p className="text-sm font-medium text-gray-900 truncate">{user.name}</p>
-                <p className="text-xs text-gray-500 truncate">@{user.username}</p>
+                <p className="text-xs text-gray-600 truncate">@{user.username}</p>
               </div>
             </button>
           </li>

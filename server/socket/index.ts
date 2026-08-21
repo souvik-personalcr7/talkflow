@@ -3,6 +3,7 @@ import crypto from 'crypto';
 import { AuthenticatedSocket, socketAuth } from './socketAuth';
 import { User } from '../models/User';
 import { Conversation } from '../models/Conversation';
+import { Message } from '../models/Message';
 
 // In-memory active connection tracking
 // Maps userId -> count of active socket connections
@@ -19,6 +20,7 @@ export const initializeSocket = (io: Server) => {
     const userId = user._id.toString();
 
     // 1. Join personal user room
+    console.log(`[SOCKET CONNECT] userId: ${userId}, socketId: ${socket.id}`);
     socket.join(`user:${userId}`);
 
     // 2. Track connection
@@ -40,11 +42,16 @@ export const initializeSocket = (io: Server) => {
       try {
         const { conversationId, receiverId, text } = payload;
         
-        if (!conversationId || !receiverId || !text || text.trim() === '') {
+        if (!conversationId || typeof conversationId !== 'string' || 
+            !receiverId || typeof receiverId !== 'string' || 
+            !text || typeof text !== 'string' || text.trim() === '') {
           return socket.emit('message:error', { message: 'Invalid message payload' });
         }
 
         const trimmedText = text.trim();
+        if (trimmedText.length > 4000) {
+          return socket.emit('message:error', { message: 'Message is too long' });
+        }
 
         // Verify conversation is valid and sender belongs to it
         const conversation = await Conversation.findById(conversationId);
@@ -69,22 +76,43 @@ export const initializeSocket = (io: Server) => {
           return socket.emit('message:error', { message: 'Invalid receiver for this conversation' });
         }
 
-        // Create ephemeral message object (NOT saved to DB)
-        const messageId = crypto.randomUUID();
-        const newMessage = {
-          id: messageId,
-          conversationId,
+        // Save message to MongoDB
+        const savedMessage = await Message.create({
           senderId: userId,
           receiverId,
+          conversationId,
           text: trimmedText,
           senderType: 'user',
           messageType: 'text',
           isSeen: false,
-          createdAt: new Date().toISOString(),
+        });
+
+        // Update the conversation's last message for the Recent Chats UI
+        await Conversation.findByIdAndUpdate(conversationId, {
+          lastMessage: trimmedText,
+          lastMessageAt: new Date()
+        });
+
+        // Format for emission
+        const newMessage = {
+          id: savedMessage._id.toString(),
+          conversationId: savedMessage.conversationId.toString(),
+          senderId: savedMessage.senderId.toString(),
+          receiverId: savedMessage.receiverId.toString(),
+          text: savedMessage.text,
+          senderType: savedMessage.senderType,
+          messageType: savedMessage.messageType,
+          isSeen: savedMessage.isSeen,
+          createdAt: savedMessage.createdAt.toISOString(),
+          updatedAt: savedMessage.updatedAt.toISOString(),
         };
 
+        console.log(`[CHAT SEND] sender: ${userId}, receiver: ${receiverId}, text: ${trimmedText}`);
+
         // Emit to receiver
+        console.log(`[CHAT ROUTE] receiverId: ${receiverId}, socketId: user:${receiverId}`);
         io.to(`user:${receiverId}`).emit('message:new', newMessage);
+        console.log(`[CHAT DELIVERED] receiverId: ${receiverId}, socketId: user:${receiverId}`);
         // Emit back to sender
         io.to(`user:${userId}`).emit('message:new', newMessage);
       } catch (err) {
@@ -95,7 +123,7 @@ export const initializeSocket = (io: Server) => {
 
     // 5. Handle typing indicators
     socket.on('typing:start', (payload: { conversationId: string, receiverId: string }) => {
-      if (!payload.receiverId || !payload.conversationId) return;
+      if (!payload || typeof payload !== 'object' || !payload.receiverId || !payload.conversationId) return;
       io.to(`user:${payload.receiverId}`).emit('typing:start', {
         conversationId: payload.conversationId,
         userId: userId
@@ -103,7 +131,7 @@ export const initializeSocket = (io: Server) => {
     });
 
     socket.on('typing:stop', (payload: { conversationId: string, receiverId: string }) => {
-      if (!payload.receiverId || !payload.conversationId) return;
+      if (!payload || typeof payload !== 'object' || !payload.receiverId || !payload.conversationId) return;
       io.to(`user:${payload.receiverId}`).emit('typing:stop', {
         conversationId: payload.conversationId,
         userId: userId
@@ -112,6 +140,7 @@ export const initializeSocket = (io: Server) => {
 
     // 6. Handle disconnect
     socket.on('disconnect', async () => {
+      console.log(`[SOCKET DISCONNECT] userId: ${userId}, socketId: ${socket.id}`);
       const count = activeConnections.get(userId) || 0;
       
       if (count <= 1) {

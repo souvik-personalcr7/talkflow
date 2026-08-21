@@ -16,7 +16,7 @@ export default function UserSearch({ searchTerm, setSearchTerm }: UserSearchProp
         </div>
         <input
           type="text"
-          className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-transparent rounded-lg text-sm focus:bg-white focus:border-gray-300 focus:ring-0 outline-none transition-colors"
+          className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-transparent rounded-lg text-sm text-gray-900 placeholder-gray-500 focus:bg-white focus:border-gray-300 focus:ring-0 outline-none transition-colors"
           placeholder="Search people..."
           value={searchTerm}
           onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
