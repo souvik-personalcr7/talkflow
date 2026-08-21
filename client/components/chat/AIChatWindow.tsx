@@ -69,6 +69,7 @@ export default function AIChatWindow({ onBack }: AIChatWindowProps) {
           <button 
             onClick={onBack}
             className="md:hidden mr-3 p-2 rounded-full hover:bg-gray-100 transition-colors"
+            aria-label="Back"
           >
             <ArrowLeft size={20} className="text-gray-600" />
           </button>
@@ -231,6 +232,7 @@ export default function AIChatWindow({ onBack }: AIChatWindowProps) {
             onClick={handleSend}
             disabled={!inputText.trim() || isGenerating}
             className="h-11 w-11 rounded-full bg-black text-white flex items-center justify-center flex-shrink-0 disabled:opacity-50 disabled:cursor-not-allowed hover:bg-gray-800 transition-colors shadow-sm"
+            aria-label="Send message"
           >
             <Send size={18} className="ml-0.5" />
           </button>

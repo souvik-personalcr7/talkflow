@@ -12,7 +12,6 @@ export const useSocketMessages = (activeConversationId?: string) => {
 
   useEffect(() => {
     const handleNewMessage = (newMessage: Message) => {
-      console.log(`[CHAT RECEIVED] senderId: ${newMessage.senderId}, text: ${newMessage.text}`);
       const convId = newMessage.conversationId;
       
       setMessagesByConversation(prev => {

@@ -24,12 +24,50 @@ export const handleAIChat = async (req: Request, res: Response): Promise<void> =
     });
 
   } catch (error: any) {
-    console.error('AI Controller error:', error);
-    res.status(500).json({
-      success: false,
-      error: 'Sorry, I couldn\'t get a response right now. Please try again.'
-    });
+    handleGeminiError(error, res);
   }
+};
+
+const handleGeminiError = (error: any, res: Response) => {
+  console.error('AI Controller Error:', error);
+  
+  if (res.headersSent) {
+    res.end();
+    return;
+  }
+
+  let status = 500;
+  let errorMessage = 'Sorry, I couldn\'t get a response right now. Please try again.';
+
+  if (error.message) {
+    if (error.message.includes('400')) {
+      status = 400;
+      errorMessage = 'Invalid request parameters.';
+    } else if (error.message.includes('401')) {
+      status = 401;
+      errorMessage = 'Invalid or missing API key.';
+    } else if (error.message.includes('403')) {
+      status = 403;
+      errorMessage = 'Permission denied to access this model.';
+    } else if (error.message.includes('404')) {
+      status = 404;
+      errorMessage = 'AI model not found or unavailable.';
+    } else if (error.message.includes('429')) {
+      status = 429;
+      errorMessage = 'Rate limit exceeded. Please wait a moment and try again.';
+    } else if (error.message.includes('503') || error.status === 503) {
+      status = 503;
+      errorMessage = 'AI service is temporarily unavailable. Please try again in a moment.';
+    } else if (error.message.includes('500')) {
+      status = 502;
+      errorMessage = 'The AI service encountered an internal error.';
+    }
+  }
+
+  res.status(status).json({
+    success: false,
+    error: errorMessage
+  });
 };
 
 export const handleAIChatStream = async (req: Request, res: Response): Promise<void> => {
@@ -46,6 +84,7 @@ export const handleAIChatStream = async (req: Request, res: Response): Promise<v
       return;
     }
 
+    console.log(`[AI STREAM] Model requested, key configured: ${!!process.env.GEMINI_API_KEY}`);
     const stream = await generateAIResponseStream(message, context || []);
 
     res.setHeader('Content-Type', 'text/plain; charset=utf-8');
@@ -65,14 +104,6 @@ export const handleAIChatStream = async (req: Request, res: Response): Promise<v
     res.end();
 
   } catch (error: any) {
-    console.error('AI Controller streaming error:', error);
-    if (!res.headersSent) {
-      res.status(500).json({
-        success: false,
-        error: 'Sorry, I couldn\'t get a response right now. Please try again.'
-      });
-    } else {
-      res.end();
-    }
+    handleGeminiError(error, res);
   }
 };

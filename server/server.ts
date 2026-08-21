@@ -23,9 +23,11 @@ import aiRoutes from './routes/aiRoutes';
 import messageRoutes from './routes/messageRoutes';
 
 // Configure CORS
-const allowedOrigin = process.env.CLIENT_URL || 'http://localhost:3000';
 const corsOptions = {
-  origin: allowedOrigin,
+  origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+    // Allow any origin that sends a request (useful for dev across network IPs)
+    callback(null, true);
+  },
   credentials: true,
 };
 
@@ -56,7 +58,9 @@ import { errorHandler } from './middleware/errorHandler';
 // Configure Socket.IO
 const io = new Server(server, {
   cors: {
-    origin: allowedOrigin,
+    origin: (origin: string | undefined, callback: (err: Error | null, allow?: boolean) => void) => {
+      callback(null, true);
+    },
     credentials: true,
   },
 });

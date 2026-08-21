@@ -34,7 +34,7 @@ export default function UserList({ users, loading, error, onSelectUser, selected
   }
 
   if (users.length === 0) {
-    return <div className="p-4 text-sm text-gray-600 text-center">No other users found.</div>;
+    return <div className="p-4 text-sm text-gray-600 text-center">No users found.</div>;
   }
 
   return (

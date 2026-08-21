@@ -53,7 +53,7 @@ export default function ChatWindow({
       <div className="hidden md:flex flex-1 flex-col items-center justify-center bg-gray-50 text-center px-4 border-l border-gray-200">
         <h2 className="text-4xl font-extrabold text-gray-900 mb-4 tracking-tight">TalkFlow</h2>
         <p className="text-xl text-gray-600 mb-2">One place for every conversation.</p>
-        <p className="text-gray-500 mb-8">Select someone from the sidebar to start chatting.</p>
+        <p className="text-gray-500 mb-8">Select a conversation to start chatting.</p>
         <div className="flex items-center space-x-4 text-gray-400">
           <span className="h-px w-16 bg-gray-300"></span>
           <span>or</span>

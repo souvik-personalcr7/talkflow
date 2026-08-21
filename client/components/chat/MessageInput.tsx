@@ -79,6 +79,7 @@ export default function MessageInput({ onSendMessage, disabled = false, conversa
           type="submit"
           disabled={disabled || isSending || !text.trim()}
           className="bg-black text-white p-2.5 rounded-full hover:bg-gray-800 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+          aria-label="Send message"
         >
           {isSending ? (
             <div className="w-5 h-5 border-2 border-gray-300 border-t-white rounded-full animate-spin"></div>

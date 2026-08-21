@@ -27,7 +27,7 @@ export default function MessageList({ selectedUser, activeConversation, messages
         <div className="max-w-md">
           <div className="text-5xl mb-4">🤖</div>
           <h3 className="text-xl font-bold text-gray-900 mb-2">Talk to TalkFlow AI</h3>
-          <p className="text-gray-600">Your AI assistant will be available soon.</p>
+          <p className="text-gray-600">Ask TalkFlow AI anything.</p>
         </div>
       </div>
     );
@@ -56,14 +56,27 @@ export default function MessageList({ selectedUser, activeConversation, messages
               💬
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-2">No messages yet</h3>
-            <p className="text-gray-600">Start the conversation with {selectedUser.name}</p>
+            <p className="text-gray-600">No messages yet. Start the conversation.</p>
           </div>
         </div>
       ) : (
-        <div className="flex flex-col">
-          {messages.map((message) => (
-            <MessageBubble key={message.id} message={message} />
-          ))}
+        <div className="flex flex-col pb-4">
+          {messages.map((message, index) => {
+            const nextMessage = messages[index + 1];
+            const prevMessage = messages[index - 1];
+            
+            const isNextSameUser = !!(nextMessage && String(nextMessage.senderId) === String(message.senderId));
+            const isPrevSameUser = !!(prevMessage && String(prevMessage.senderId) === String(message.senderId));
+
+            return (
+              <MessageBubble 
+                key={message.id} 
+                message={message} 
+                isNextSameUser={isNextSameUser}
+                isPrevSameUser={isPrevSameUser}
+              />
+            );
+          })}
         </div>
       )}
     </div>
