@@ -3,6 +3,7 @@
 import { useEffect, useRef } from 'react';
 import { User, Message, Conversation } from '@/types';
 import MessageBubble from './MessageBubble';
+import { Bot } from 'lucide-react';
 
 interface MessageListProps {
   selectedUser: User;
@@ -25,7 +26,7 @@ export default function MessageList({ selectedUser, activeConversation, messages
     return (
       <div className="flex-1 overflow-y-auto bg-gray-50 p-6 flex flex-col items-center justify-center text-center">
         <div className="max-w-md">
-          <div className="text-5xl mb-4">🤖</div>
+          <div className="flex justify-center text-purple-600 mb-4"><Bot size={48} /></div>
           <h3 className="text-xl font-bold text-gray-900 mb-2">Talk to TalkFlow AI</h3>
           <p className="text-gray-600">Ask TalkFlow AI anything.</p>
         </div>

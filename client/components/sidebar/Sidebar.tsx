@@ -10,6 +10,7 @@ import UserSearch from './UserSearch';
 import UserList from './UserList';
 import ConversationList from './ConversationList';
 import { ConnectionStatus } from '../chat/ConnectionStatus';
+import { Bot } from 'lucide-react';
 
 interface SidebarProps {
   onSelectUser: (user: User) => void;
@@ -28,7 +29,10 @@ export default function Sidebar({ onSelectUser, selectedUserId, unreadCounts, me
     <div className="w-full md:w-80 h-full bg-white border-r border-gray-200 flex flex-col">
       {/* Header */}
       <div className="p-4 border-b border-gray-100 flex flex-col items-start justify-center gap-2">
-        <h1 className="text-xl font-extrabold tracking-tight text-gray-900">TalkFlow</h1>
+        <div className="flex items-center gap-2">
+          <Bot className="w-6 h-6 text-indigo-600" />
+          <h1 className="text-xl font-extrabold tracking-tight text-gray-900">TalkFlow</h1>
+        </div>
         <ConnectionStatus />
       </div>
 
@@ -44,7 +48,7 @@ export default function Sidebar({ onSelectUser, selectedUserId, unreadCounts, me
             onSelectUser({ id: 'ai', name: 'TalkFlow AI', username: 'ai', isOnline: true } as User);
           }}
         >
-          <span>🤖</span>
+          <Bot size={18} />
           <span>TalkFlow AI</span>
         </button>
       </div>

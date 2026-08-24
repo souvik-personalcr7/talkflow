@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Bot } from 'lucide-react';
 
 const loginSchema = z.object({
   email: z.string().email('Invalid email address'),
@@ -43,7 +43,10 @@ export default function LoginForm() {
   return (
     <div className="w-full max-w-md p-8 bg-white rounded-xl shadow-lg border border-gray-100">
       <div className="text-center mb-8">
-        <h1 className="text-3xl font-extrabold text-gray-900 mb-2">TalkFlow</h1>
+        <div className="flex items-center justify-center gap-2 mb-2">
+          <Bot className="w-8 h-8 text-indigo-600" />
+          <h1 className="text-3xl font-extrabold text-gray-900">TalkFlow</h1>
+        </div>
         <p className="text-gray-500 font-medium">Welcome back</p>
       </div>
 
@@ -81,6 +84,11 @@ export default function LoginForm() {
             >
               {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
             </button>
+          </div>
+          <div className="mt-2 flex justify-end">
+            <Link href="/forgot-password" className="text-sm font-semibold text-black hover:underline">
+              Forgot Password?
+            </Link>
           </div>
           {errors.password && <p className="mt-1 text-sm text-red-600">{errors.password.message}</p>}
         </div>

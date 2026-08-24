@@ -6,7 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { useAuth } from '@/hooks/useAuth';
 import Link from 'next/link';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Bot } from 'lucide-react';
 
 const registerSchema = z.object({
   name: z.string().min(2, 'Name must be at least 2 characters'),
@@ -50,7 +50,10 @@ export default function RegisterForm() {
   return (
     <div className="w-full max-w-md p-8 bg-white rounded-xl shadow-lg border border-gray-100">
       <div className="text-center mb-8">
-        <h1 className="text-3xl font-extrabold text-gray-900 mb-2">TalkFlow</h1>
+        <div className="flex items-center justify-center gap-2 mb-2">
+          <Bot className="w-8 h-8 text-indigo-600" />
+          <h1 className="text-3xl font-extrabold text-gray-900">TalkFlow</h1>
+        </div>
         <p className="text-gray-500 font-medium">Create your account</p>
       </div>
 

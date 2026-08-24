@@ -1,6 +1,7 @@
 'use client';
 
 import { User } from '@/types';
+import { Bot } from 'lucide-react';
 
 interface ChatHeaderProps {
   user: User;
@@ -35,7 +36,7 @@ export default function ChatHeader({ user, onBack }: ChatHeaderProps) {
             <img src={user.profileImage} alt={user.name} className="h-10 w-10 rounded-full object-cover" />
           ) : (
             <div className="h-10 w-10 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center font-bold text-sm">
-              {user.id === 'ai' ? '🤖' : getInitials(user.name)}
+              {user.id === 'ai' ? <Bot size={20} /> : getInitials(user.name)}
             </div>
           )}
         </div>

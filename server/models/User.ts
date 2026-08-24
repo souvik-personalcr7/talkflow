@@ -11,6 +11,10 @@ export interface IUser extends Document {
   lastSeen?: Date;
   createdAt: Date;
   updatedAt: Date;
+  passwordResetOtpHash?: string;
+  passwordResetOtpExpires?: Date;
+  passwordResetOtpAttempts?: number;
+  passwordResetOtpLastSentAt?: Date;
   comparePassword(candidatePassword: string): Promise<boolean>;
 }
 
@@ -23,6 +27,10 @@ const userSchema = new Schema<IUser>(
     profileImage: { type: String, default: '' },
     isOnline: { type: Boolean, default: false },
     lastSeen: { type: Date },
+    passwordResetOtpHash: { type: String },
+    passwordResetOtpExpires: { type: Date },
+    passwordResetOtpAttempts: { type: Number, default: 0 },
+    passwordResetOtpLastSentAt: { type: Date },
   },
   {
     timestamps: true,

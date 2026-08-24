@@ -6,6 +6,7 @@ import ChatHeader from './ChatHeader';
 import MessageList from './MessageList';
 import MessageInput from './MessageInput';
 import { socket } from '../../lib/socket';
+import { Bot } from 'lucide-react';
 
 interface ChatWindowProps {
   selectedUser: User | null;
@@ -51,7 +52,10 @@ export default function ChatWindow({
   if (!selectedUser) {
     return (
       <div className="hidden md:flex flex-1 flex-col items-center justify-center bg-gray-50 text-center px-4 border-l border-gray-200">
-        <h2 className="text-4xl font-extrabold text-gray-900 mb-4 tracking-tight">TalkFlow</h2>
+        <div className="flex items-center justify-center gap-3 mb-4">
+          <Bot className="w-10 h-10 text-indigo-600" />
+          <h2 className="text-4xl font-extrabold text-gray-900 tracking-tight">TalkFlow</h2>
+        </div>
         <p className="text-xl text-gray-600 mb-2">One place for every conversation.</p>
         <p className="text-gray-500 mb-8">Select a conversation to start chatting.</p>
         <div className="flex items-center space-x-4 text-gray-400">
@@ -61,7 +65,7 @@ export default function ChatWindow({
         </div>
         <div className="mt-8">
           <div className="inline-flex items-center justify-center space-x-2 bg-indigo-50 text-indigo-700 py-2 px-6 rounded-full font-medium">
-            <span className="text-xl">🤖</span>
+            <Bot size={24} />
             <span>Talk to TalkFlow AI</span>
           </div>
         </div>

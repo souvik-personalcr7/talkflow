@@ -3,7 +3,7 @@ import { useAIChat, AIMessage } from '@/hooks/useAIChat';
 import ReactMarkdown from 'react-markdown';
 import rehypeSanitize from 'rehype-sanitize';
 import { format } from 'date-fns';
-import { ArrowLeft, Send, Square, RefreshCw, Copy, RotateCcw } from 'lucide-react';
+import { ArrowLeft, Send, Square, RefreshCw, Copy, RotateCcw, Bot } from 'lucide-react';
 
 interface AIChatWindowProps {
   onBack: () => void;
@@ -75,8 +75,8 @@ export default function AIChatWindow({ onBack }: AIChatWindowProps) {
           </button>
           
           <div className="flex items-center">
-            <div className="h-10 w-10 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white text-xl shadow-inner mr-3">
-              🤖
+            <div className="h-10 w-10 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-white shadow-inner mr-3">
+              <Bot size={24} />
             </div>
             <div>
               <h2 className="font-semibold text-gray-900 text-base">TalkFlow AI</h2>
@@ -96,8 +96,8 @@ export default function AIChatWindow({ onBack }: AIChatWindowProps) {
       >
         {messages.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-center px-4">
-            <div className="h-20 w-20 rounded-full bg-gradient-to-tr from-indigo-100 to-purple-100 flex items-center justify-center text-4xl mb-4 shadow-sm border border-purple-100">
-              🤖
+            <div className="h-20 w-20 rounded-full bg-gradient-to-tr from-indigo-100 to-purple-100 flex items-center justify-center mb-4 shadow-sm border border-purple-100 text-purple-600">
+              <Bot size={40} />
             </div>
             <h3 className="text-xl font-bold text-gray-900 mb-2">TalkFlow AI</h3>
             <p className="text-gray-500 mb-8 max-w-md">How can I help you today? I'm your personal AI assistant.</p>
@@ -192,7 +192,7 @@ export default function AIChatWindow({ onBack }: AIChatWindowProps) {
                 <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
                 <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
               </div>
-              <span className="text-sm text-gray-500 ml-2">🤖 Thinking...</span>
+              <span className="text-sm text-gray-500 ml-2 flex items-center gap-1"><Bot size={14} /> Thinking...</span>
             </div>
           </div>
         )}

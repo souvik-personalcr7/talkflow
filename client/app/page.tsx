@@ -3,6 +3,7 @@
 import { useAuth } from '@/hooks/useAuth';
 import { redirect } from 'next/navigation';
 import Link from 'next/link';
+import { Bot } from 'lucide-react';
 
 export default function Home() {
   const { user, loading } = useAuth();
@@ -23,6 +24,7 @@ export default function Home() {
     <div className="flex min-h-screen flex-col items-center justify-center bg-white text-gray-900">
       <main className="flex flex-col items-center justify-center w-full flex-1 px-20 text-center">
         <h1 className="text-6xl font-extrabold tracking-tight text-gray-900">
+          <div className="flex justify-center mb-4 text-indigo-600"><Bot size={80} /></div>
           TalkFlow
         </h1>
 
