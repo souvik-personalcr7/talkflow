@@ -102,6 +102,7 @@ export const useAIChat = () => {
             break;
           }
           const chunk = decoder.decode(value, { stream: true });
+          console.log('Received chunk:', chunk);
           
           setMessages(prev => prev.map(msg => {
             if (msg.id === aiMsgId) {

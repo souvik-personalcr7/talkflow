@@ -88,8 +88,8 @@ export const handleAIChatStream = async (req: Request, res: Response): Promise<v
     const stream = await generateAIResponseStream(message, context || []);
 
     res.setHeader('Content-Type', 'text/plain; charset=utf-8');
-    res.setHeader('Transfer-Encoding', 'chunked');
     res.setHeader('Connection', 'keep-alive');
+    res.flushHeaders();
 
     req.on('close', () => {
       console.log('Client disconnected during stream.');
@@ -97,10 +97,11 @@ export const handleAIChatStream = async (req: Request, res: Response): Promise<v
     });
 
     for await (const chunk of stream) {
-      if (req.closed) break;
+      if (res.writableEnded) break;
       res.write(chunk.text());
     }
 
+    console.log('Stream finished.');
     res.end();
 
   } catch (error: any) {

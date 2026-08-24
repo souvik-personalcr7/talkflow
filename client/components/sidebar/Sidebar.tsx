@@ -35,7 +35,7 @@ export default function Sidebar({ onSelectUser, selectedUserId, unreadCounts, me
       {/* AI Assistant Button */}
       <div className="p-4 border-b border-gray-100">
         <button 
-          className={`w-full flex items-center justify-center space-x-2 py-2.5 px-4 rounded-lg font-medium transition-colors ${
+          className={`w-full flex items-center justify-center space-x-2 py-2.5 px-4 rounded-lg font-medium transition-colors cursor-pointer ${
             selectedUserId === 'ai' 
               ? 'bg-purple-100 text-purple-800' 
               : 'bg-indigo-50 text-indigo-700 hover:bg-indigo-100'
