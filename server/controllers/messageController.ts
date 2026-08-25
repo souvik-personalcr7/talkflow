@@ -61,6 +61,9 @@ export const getMessages = async (req: Request, res: Response) => {
       text: msg.text,
       senderType: msg.senderType,
       messageType: msg.messageType,
+      imageUrl: msg.imageUrl,
+      attachment: msg.attachment,
+      contact: msg.contact,
       isSeen: msg.isSeen,
       createdAt: msg.createdAt,
       updatedAt: msg.updatedAt

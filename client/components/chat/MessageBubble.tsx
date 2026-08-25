@@ -63,7 +63,7 @@ export default function MessageBubble({ message, isNextSameUser = false, isPrevS
               alt="Shared image" 
               className="max-w-full max-h-[300px] object-contain rounded-xl"
             />
-            {message.text && (
+            {message.text && !['📷 Image', '📷 Photo', '📄 File', '👤 Contact'].includes(message.text) && (
               <p className="p-2 text-[15px] leading-relaxed break-words whitespace-pre-wrap">{message.text}</p>
             )}
           </div>
@@ -86,7 +86,7 @@ export default function MessageBubble({ message, isNextSameUser = false, isPrevS
               </div>
               <Download size={18} className="opacity-0 group-hover:opacity-100 transition-opacity text-gray-500 dark:text-gray-400" />
             </a>
-            {message.text && (
+            {message.text && !['📷 Image', '📷 Photo', '📄 File', '👤 Contact'].includes(message.text) && (
               <p className="text-[15px] leading-relaxed break-words whitespace-pre-wrap">{message.text}</p>
             )}
           </div>
@@ -105,7 +105,7 @@ export default function MessageBubble({ message, isNextSameUser = false, isPrevS
                 <p className="text-xs opacity-70 mt-0.5">Contact</p>
               </div>
             </div>
-            {message.text && (
+            {message.text && !['📷 Image', '📷 Photo', '📄 File', '👤 Contact'].includes(message.text) && (
               <p className="text-[15px] leading-relaxed break-words whitespace-pre-wrap mt-1">{message.text}</p>
             )}
           </div>
