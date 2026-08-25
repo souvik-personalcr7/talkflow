@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import api from '../lib/api';
 import { User } from '../types';
+import { socket } from '../lib/socket';
 
 export const useUsers = (searchQuery: string) => {
   const [users, setUsers] = useState<User[]>([]);
@@ -33,6 +34,18 @@ export const useUsers = (searchQuery: string) => {
 
   useEffect(() => {
     fetchUsers();
+
+    const handleProfileUpdate = (payload: { userId: string; profileImage: string }) => {
+      setUsers(prev => prev.map(u => 
+        u.id === payload.userId ? { ...u, profileImage: payload.profileImage } : u
+      ));
+    };
+
+    socket.on('user:profile-update', handleProfileUpdate);
+
+    return () => {
+      socket.off('user:profile-update', handleProfileUpdate);
+    };
   }, [fetchUsers]);
 
   return { users, loading, error, fetchUsers };

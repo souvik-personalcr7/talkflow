@@ -38,17 +38,24 @@ export const initializeSocket = (io: Server) => {
     }
 
     // 4. Handle incoming messages (ephemeral)
-    socket.on('message:send', async (payload: { conversationId: string, receiverId: string, text: string }) => {
+    socket.on('message:send', async (payload: { 
+      conversationId: string, 
+      receiverId: string, 
+      text?: string, 
+      messageType?: 'text' | 'image' | 'file' | 'contact', 
+      imageUrl?: string,
+      attachment?: any,
+      contact?: any
+    }) => {
       try {
-        const { conversationId, receiverId, text } = payload;
+        const { conversationId, receiverId, text = '', messageType = 'text', imageUrl, attachment, contact } = payload;
         
         if (!conversationId || typeof conversationId !== 'string' || 
-            !receiverId || typeof receiverId !== 'string' || 
-            !text || typeof text !== 'string' || text.trim() === '') {
+            !receiverId || typeof receiverId !== 'string') {
           return socket.emit('message:error', { message: 'Invalid message payload' });
         }
 
-        const trimmedText = text.trim();
+        const trimmedText = typeof text === 'string' ? text.trim() : '';
         if (trimmedText.length > 4000) {
           return socket.emit('message:error', { message: 'Message is too long' });
         }
@@ -83,13 +90,23 @@ export const initializeSocket = (io: Server) => {
           conversationId,
           text: trimmedText,
           senderType: 'user',
-          messageType: 'text',
+          messageType,
+          imageUrl,
+          attachment,
+          contact,
           isSeen: false,
         });
 
         // Update the conversation's last message for the Recent Chats UI
+        let lastMessageText = trimmedText;
+        if (!lastMessageText) {
+          if (messageType === 'image') lastMessageText = '📷 Photo';
+          else if (messageType === 'file') lastMessageText = '📄 File';
+          else if (messageType === 'contact') lastMessageText = '👤 Contact';
+        }
+
         await Conversation.findByIdAndUpdate(conversationId, {
-          lastMessage: trimmedText,
+          lastMessage: lastMessageText,
           lastMessageAt: new Date()
         });
 
@@ -102,6 +119,9 @@ export const initializeSocket = (io: Server) => {
           text: savedMessage.text,
           senderType: savedMessage.senderType,
           messageType: savedMessage.messageType,
+          imageUrl: savedMessage.imageUrl,
+          attachment: savedMessage.attachment,
+          contact: savedMessage.contact,
           isSeen: savedMessage.isSeen,
           createdAt: savedMessage.createdAt.toISOString(),
           updatedAt: savedMessage.updatedAt.toISOString(),
@@ -135,6 +155,14 @@ export const initializeSocket = (io: Server) => {
       io.to(`user:${payload.receiverId}`).emit('typing:stop', {
         conversationId: payload.conversationId,
         userId: userId
+      });
+    });
+
+    socket.on('user:profile-update', (payload: { profileImage: string }) => {
+      // Broadcast to all clients that this user updated their profile picture
+      io.emit('user:profile-update', {
+        userId,
+        profileImage: payload?.profileImage || ''
       });
     });
 

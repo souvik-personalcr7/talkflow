@@ -1,6 +1,8 @@
 'use client';
 
 import { User } from '@/types';
+import Avatar from '../ui/Avatar';
+import { useAuth } from '@/hooks/useAuth';
 
 interface UserListProps {
   users: User[];
@@ -11,61 +13,68 @@ interface UserListProps {
 }
 
 export default function UserList({ users, loading, error, onSelectUser, selectedUserId }: UserListProps) {
-  
-  const getInitials = (name: string) => {
-    return name
-      .split(' ')
-      .map(n => n[0])
-      .join('')
-      .toUpperCase()
-      .substring(0, 2);
-  };
+  const { user: currentUser } = useAuth();
 
   if (loading) {
     return (
-      <div className="p-4 flex justify-center">
-        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-gray-900"></div>
+      <div className="mt-4">
+        <div className="p-4 text-sm text-gray-600 dark:text-gray-400 text-center animate-pulse">
+          Loading people...
+        </div>
       </div>
     );
   }
 
   if (error) {
-    return <div className="p-4 text-sm text-red-500 text-center">{error}</div>;
+    return (
+      <div className="mt-4">
+        <div className="p-4 text-sm text-red-500 dark:text-red-400 text-center">
+          {error}
+        </div>
+      </div>
+    );
   }
 
-  if (users.length === 0) {
-    return <div className="p-4 text-sm text-gray-600 text-center">No users found.</div>;
+  const filteredUsers = users.filter(user => user.id !== currentUser?.id);
+
+  if (filteredUsers.length === 0) {
+    return (
+      <div className="mt-4">
+        <div className="p-4 text-sm text-gray-600 dark:text-gray-400 text-center">
+          No people found.
+        </div>
+      </div>
+    );
   }
 
   return (
-    <div className="flex-1 overflow-y-auto">
-      <div className="px-4 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-        People
-      </div>
-      <ul className="space-y-1 px-2">
-        {users.map((user) => (
+    <div className="py-2">
+      <ul className="space-y-1">
+        {filteredUsers.map((user) => (
           <li key={user.id}>
             <button
               onClick={() => onSelectUser(user)}
-              className={`w-full flex items-center p-2 rounded-lg transition-colors text-left ${
-                selectedUserId === user.id ? 'bg-gray-100' : 'hover:bg-gray-50'
+              className={`w-full flex items-center px-4 py-3 hover:bg-gray-50 dark:hover:bg-slate-800 transition-colors ${
+                selectedUserId === user.id ? 'bg-indigo-50 dark:bg-indigo-900/30' : ''
               }`}
             >
-              <div className="flex-shrink-0 mr-3 relative">
-                {user.profileImage ? (
-                  <img src={user.profileImage} alt={user.name} className="h-10 w-10 rounded-full object-cover" />
-                ) : (
-                  <div className="h-10 w-10 rounded-full bg-gray-200 text-gray-700 flex items-center justify-center font-bold text-sm">
-                    {getInitials(user.name)}
-                  </div>
-                )}
-                {user.isOnline && (
-                  <span className="absolute bottom-0 right-0 block h-2.5 w-2.5 rounded-full bg-green-500 ring-2 ring-white"></span>
-                )}
+              <div className="relative mr-3 flex-shrink-0">
+                <Avatar user={user} size="md" />
               </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-sm font-medium text-gray-900 truncate">{user.name}</p>
-                <p className="text-xs text-gray-600 truncate">@{user.username}</p>
+              
+              <div className="flex-1 min-w-0 text-left">
+                <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">
+                  {user.name}
+                </p>
+                <div className="flex items-center text-xs text-gray-500 dark:text-gray-400 mt-0.5">
+                  <span className="truncate">@{user.username}</span>
+                  {user.isOnline && (
+                    <span className="ml-2 flex items-center text-green-600 dark:text-green-500 font-medium flex-shrink-0">
+                      <span className="h-1.5 w-1.5 bg-green-500 rounded-full mr-1"></span>
+                      Online
+                    </span>
+                  )}
+                </div>
               </div>
             </button>
           </li>

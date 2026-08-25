@@ -3,10 +3,22 @@ export interface Message {
   conversationId: string;
   senderId: string;
   receiverId: string;
-  senderType: 'user' | 'ai';
   text: string;
-  messageType: 'text';
+  senderType: 'user' | 'ai';
+  messageType: 'text' | 'image' | 'file' | 'contact';
+  imageUrl?: string;
+  attachment?: {
+    url: string;
+    name: string;
+    size: number;
+    mimeType: string;
+  };
+  contact?: {
+    userId: string;
+    name: string;
+    profilePicture?: string;
+  };
   isSeen: boolean;
   createdAt: string;
-  updatedAt?: string;
+  updatedAt: string;
 }

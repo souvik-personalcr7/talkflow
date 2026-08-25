@@ -6,7 +6,19 @@ export interface IMessage extends Document {
   conversationId: mongoose.Types.ObjectId;
   text: string;
   senderType: 'user' | 'ai';
-  messageType: 'text';
+  messageType: 'text' | 'image' | 'file' | 'contact';
+  imageUrl?: string;
+  attachment?: {
+    url: string;
+    name: string;
+    size: number;
+    mimeType: string;
+  };
+  contact?: {
+    userId: mongoose.Types.ObjectId;
+    name: string;
+    profilePicture?: string;
+  };
   isSeen: boolean;
   createdAt: Date;
   updatedAt: Date;
@@ -31,7 +43,7 @@ const messageSchema = new Schema<IMessage>(
     },
     text: {
       type: String,
-      required: true,
+      default: '', // Make it optional for files without captions
     },
     senderType: {
       type: String,
@@ -40,8 +52,22 @@ const messageSchema = new Schema<IMessage>(
     },
     messageType: {
       type: String,
-      enum: ['text'],
+      enum: ['text', 'image', 'file', 'contact'],
       default: 'text',
+    },
+    imageUrl: {
+      type: String,
+    },
+    attachment: {
+      url: String,
+      name: String,
+      size: Number,
+      mimeType: String,
+    },
+    contact: {
+      userId: { type: Schema.Types.ObjectId, ref: 'User' },
+      name: String,
+      profilePicture: String,
     },
     isSeen: {
       type: Boolean,

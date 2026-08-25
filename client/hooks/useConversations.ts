@@ -1,6 +1,7 @@
 import { useState, useCallback, useEffect } from 'react';
 import api from '../lib/api';
 import { Conversation, User } from '../types';
+import { socket } from '../lib/socket';
 
 export const useConversations = () => {
   const [conversations, setConversations] = useState<Conversation[]>([]);
@@ -48,6 +49,27 @@ export const useConversations = () => {
 
   useEffect(() => {
     fetchConversations();
+
+    const handleProfileUpdate = (payload: { userId: string; profileImage: string }) => {
+      setConversations(prev => prev.map(conv => {
+        const hasParticipant = conv.participants.some(p => p.id === payload.userId);
+        if (hasParticipant) {
+          return {
+            ...conv,
+            participants: conv.participants.map(p => 
+              p.id === payload.userId ? { ...p, profileImage: payload.profileImage } : p
+            )
+          };
+        }
+        return conv;
+      }));
+    };
+
+    socket.on('user:profile-update', handleProfileUpdate);
+
+    return () => {
+      socket.off('user:profile-update', handleProfileUpdate);
+    };
   }, [fetchConversations]);
 
   return {

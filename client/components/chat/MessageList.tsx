@@ -24,11 +24,11 @@ export default function MessageList({ selectedUser, activeConversation, messages
 
   if (selectedUser.id === 'ai') {
     return (
-      <div className="flex-1 overflow-y-auto bg-gray-50 p-6 flex flex-col items-center justify-center text-center">
+      <div className="flex-1 overflow-y-auto bg-gray-50 dark:bg-slate-900 p-6 flex flex-col items-center justify-center text-center transition-colors">
         <div className="max-w-md">
-          <div className="flex justify-center text-purple-600 mb-4"><Bot size={48} /></div>
-          <h3 className="text-xl font-bold text-gray-900 mb-2">Talk to TalkFlow AI</h3>
-          <p className="text-gray-600">Ask TalkFlow AI anything.</p>
+          <div className="flex justify-center text-purple-600 dark:text-purple-400 mb-4"><Bot size={48} /></div>
+          <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">Talk to TalkFlow AI</h3>
+          <p className="text-gray-600 dark:text-gray-400">Ask TalkFlow AI anything.</p>
         </div>
       </div>
     );
@@ -36,9 +36,9 @@ export default function MessageList({ selectedUser, activeConversation, messages
 
   if (messagesLoading && messages.length === 0) {
     return (
-      <div className="flex-1 overflow-y-auto bg-gray-50 p-6 flex items-center justify-center">
-        <div className="flex flex-col items-center space-y-4 text-gray-600">
-          <div className="w-8 h-8 border-4 border-gray-300 border-t-indigo-600 rounded-full animate-spin"></div>
+      <div className="flex-1 overflow-y-auto bg-gray-50 dark:bg-slate-900 p-6 flex items-center justify-center transition-colors">
+        <div className="flex flex-col items-center space-y-4 text-gray-600 dark:text-gray-400">
+          <div className="w-8 h-8 border-4 border-gray-300 dark:border-gray-700 border-t-indigo-600 dark:border-t-indigo-500 rounded-full animate-spin"></div>
           <p className="text-sm">Loading messages...</p>
         </div>
       </div>
@@ -48,16 +48,16 @@ export default function MessageList({ selectedUser, activeConversation, messages
   return (
     <div 
       ref={scrollRef}
-      className="flex-1 overflow-y-auto bg-gray-50 p-4 md:p-6"
+      className="flex-1 overflow-y-auto bg-gray-50 dark:bg-slate-900 p-4 md:p-6 transition-colors"
     >
       {messages.length === 0 ? (
         <div className="h-full flex flex-col items-center justify-center text-center">
           <div className="max-w-md">
-            <div className="h-16 w-16 bg-white border border-gray-200 rounded-full flex items-center justify-center text-2xl text-gray-500 mx-auto mb-4 shadow-sm">
+            <div className="h-16 w-16 bg-white dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded-full flex items-center justify-center text-2xl text-gray-500 dark:text-gray-400 mx-auto mb-4 shadow-sm">
               💬
             </div>
-            <h3 className="text-xl font-bold text-gray-900 mb-2">No messages yet</h3>
-            <p className="text-gray-600">No messages yet. Start the conversation.</p>
+            <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100 mb-2">No messages yet</h3>
+            <p className="text-gray-600 dark:text-gray-400">No messages yet. Start the conversation.</p>
           </div>
         </div>
       ) : (

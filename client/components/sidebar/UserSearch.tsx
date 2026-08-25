@@ -1,6 +1,6 @@
 'use client';
 
-import { ChangeEvent } from 'react';
+import { Search } from 'lucide-react';
 
 interface UserSearchProps {
   searchTerm: string;
@@ -9,17 +9,17 @@ interface UserSearchProps {
 
 export default function UserSearch({ searchTerm, setSearchTerm }: UserSearchProps) {
   return (
-    <div className="px-4 py-3 border-b border-gray-100">
+    <div className="p-4">
       <div className="relative">
         <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-          <span className="text-gray-400">🔍</span>
+          <Search className="h-4 w-4 text-gray-400 dark:text-gray-500" />
         </div>
         <input
           type="text"
-          className="w-full pl-10 pr-4 py-2 bg-gray-50 border border-transparent rounded-lg text-sm text-gray-900 placeholder-gray-500 focus:bg-white focus:border-gray-300 focus:ring-0 outline-none transition-colors"
+          className="block w-full pl-10 pr-3 py-2 border border-gray-300 dark:border-gray-700 rounded-md leading-5 bg-white dark:bg-slate-800 placeholder-gray-500 dark:placeholder-gray-400 text-gray-900 dark:text-gray-100 focus:outline-none focus:ring-1 focus:ring-indigo-500 focus:border-indigo-500 dark:focus:ring-indigo-500 dark:focus:border-indigo-500 sm:text-sm transition-colors"
           placeholder="Search people..."
           value={searchTerm}
-          onChange={(e: ChangeEvent<HTMLInputElement>) => setSearchTerm(e.target.value)}
+          onChange={(e) => setSearchTerm(e.target.value)}
         />
       </div>
     </div>

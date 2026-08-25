@@ -13,7 +13,7 @@ interface ChatWindowProps {
   activeConversation?: Conversation | null;
   messages?: Message[];
   messagesLoading?: boolean;
-  onSendMessage?: (text: string) => void | Promise<any>;
+  onSendMessage?: (text: string, options?: any) => void | Promise<any>;
   onBack: () => void;
 }
 
@@ -51,20 +51,20 @@ export default function ChatWindow({
 
   if (!selectedUser) {
     return (
-      <div className="hidden md:flex flex-1 flex-col items-center justify-center bg-gray-50 text-center px-4 border-l border-gray-200">
+      <div className="hidden md:flex flex-1 flex-col items-center justify-center bg-gray-50 dark:bg-slate-900 text-center px-4 border-l border-gray-200 dark:border-gray-800 transition-colors">
         <div className="flex items-center justify-center gap-3 mb-4">
-          <Bot className="w-10 h-10 text-indigo-600" />
-          <h2 className="text-4xl font-extrabold text-gray-900 tracking-tight">TalkFlow</h2>
+          <Bot className="w-10 h-10 text-indigo-600 dark:text-indigo-400" />
+          <h2 className="text-4xl font-extrabold text-gray-900 dark:text-white tracking-tight">TalkFlow</h2>
         </div>
-        <p className="text-xl text-gray-600 mb-2">One place for every conversation.</p>
-        <p className="text-gray-500 mb-8">Select a conversation to start chatting.</p>
-        <div className="flex items-center space-x-4 text-gray-400">
-          <span className="h-px w-16 bg-gray-300"></span>
+        <p className="text-xl text-gray-600 dark:text-gray-300 mb-2">One place for every conversation.</p>
+        <p className="text-gray-500 dark:text-gray-400 mb-8">Select a conversation to start chatting.</p>
+        <div className="flex items-center space-x-4 text-gray-400 dark:text-gray-500">
+          <span className="h-px w-16 bg-gray-300 dark:bg-gray-700"></span>
           <span>or</span>
-          <span className="h-px w-16 bg-gray-300"></span>
+          <span className="h-px w-16 bg-gray-300 dark:bg-gray-700"></span>
         </div>
         <div className="mt-8">
-          <div className="inline-flex items-center justify-center space-x-2 bg-indigo-50 text-indigo-700 py-2 px-6 rounded-full font-medium">
+          <div className="inline-flex items-center justify-center space-x-2 bg-indigo-50 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 py-2 px-6 rounded-full font-medium transition-colors">
             <Bot size={24} />
             <span>Talk to TalkFlow AI</span>
           </div>
@@ -74,7 +74,7 @@ export default function ChatWindow({
   }
 
   return (
-    <div className="flex-1 flex flex-col bg-white h-full border-l border-gray-200">
+    <div className="flex-1 flex flex-col bg-white dark:bg-slate-900 h-full border-l border-gray-200 dark:border-gray-800 transition-colors">
       <ChatHeader user={selectedUser} onBack={onBack} />
       <MessageList 
         selectedUser={selectedUser} 
@@ -83,7 +83,7 @@ export default function ChatWindow({
         messagesLoading={messagesLoading}
       />
       {isTyping && (
-        <div className="px-6 py-2 text-xs text-gray-500 italic animate-pulse">
+        <div className="px-6 py-2 text-xs text-gray-500 dark:text-gray-400 italic animate-pulse">
           {selectedUser.name} is typing...
         </div>
       )}

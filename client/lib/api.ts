@@ -25,4 +25,36 @@ api.interceptors.response.use(
   }
 );
 
+export const uploadMessageImage = async (file: File): Promise<string> => {
+  const formData = new FormData();
+  formData.append('image', file);
+
+  const response = await api.post('/messages/upload-image', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+
+  return response.data.data.url;
+};
+
+export const uploadMessageFile = async (file: File): Promise<{
+  url: string;
+  publicId: string;
+  name: string;
+  size: number;
+  mimeType: string;
+}> => {
+  const formData = new FormData();
+  formData.append('file', file);
+
+  const response = await api.post('/messages/upload-file', formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
+
+  return response.data.data;
+};
+
 export default api;

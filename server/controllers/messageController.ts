@@ -3,6 +3,7 @@ import { Message } from '../models/Message';
 import { Conversation } from '../models/Conversation';
 import { User } from '../models/User';
 import mongoose from 'mongoose';
+import cloudinary from '../config/cloudinary';
 
 export const getMessages = async (req: Request, res: Response) => {
   try {
@@ -74,5 +75,102 @@ export const getMessages = async (req: Request, res: Response) => {
   } catch (error: any) {
     console.error('Error in getMessages:', error);
     res.status(500).json({ success: false, message: 'Server Error' });
+  }
+};
+
+export const uploadImage = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const currentUserId = req.user?._id;
+
+    if (!currentUserId) {
+      res.status(401).json({ success: false, message: 'Not authorized' });
+      return;
+    }
+
+    if (!req.file) {
+      res.status(400).json({ success: false, message: 'No image provided' });
+      return;
+    }
+
+    // Upload image via stream
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        folder: 'talkflow_messages',
+        transformation: [{ width: 1200, height: 1200, crop: 'limit' }],
+      },
+      async (error, result) => {
+        if (error) {
+          console.error('Cloudinary upload error:', error);
+          res.status(500).json({ success: false, message: 'Image upload failed' });
+          return;
+        }
+
+        if (result) {
+          res.status(200).json({
+            success: true,
+            data: {
+              url: result.secure_url,
+              publicId: result.public_id,
+            }
+          });
+        }
+      }
+    );
+
+    uploadStream.end(req.file.buffer);
+
+  } catch (error) {
+    console.error('Error uploading message image:', error);
+    res.status(500).json({ success: false, message: 'Server error uploading image' });
+  }
+};
+
+export const uploadFile = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const currentUserId = req.user?._id;
+
+    if (!currentUserId) {
+      res.status(401).json({ success: false, message: 'Not authorized' });
+      return;
+    }
+
+    if (!req.file) {
+      res.status(400).json({ success: false, message: 'No file provided' });
+      return;
+    }
+
+    // Upload generic file via stream with resource_type: 'auto'
+    const uploadStream = cloudinary.uploader.upload_stream(
+      {
+        folder: 'talkflow_messages_files',
+        resource_type: 'auto',
+      },
+      async (error, result) => {
+        if (error) {
+          console.error('Cloudinary upload error:', error);
+          res.status(500).json({ success: false, message: 'File upload failed' });
+          return;
+        }
+
+        if (result) {
+          res.status(200).json({
+            success: true,
+            data: {
+              url: result.secure_url,
+              publicId: result.public_id,
+              name: req.file?.originalname || 'file',
+              size: req.file?.size || 0,
+              mimeType: req.file?.mimetype || 'application/octet-stream',
+            }
+          });
+        }
+      }
+    );
+
+    uploadStream.end(req.file.buffer);
+
+  } catch (error) {
+    console.error('Error uploading message file:', error);
+    res.status(500).json({ success: false, message: 'Server error uploading file' });
   }
 };

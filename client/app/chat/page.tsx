@@ -45,8 +45,8 @@ export default function ChatDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 text-gray-900">
-        <h2 className="text-2xl font-bold text-gray-500 animate-pulse">Loading TalkFlow...</h2>
+      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-gray-100 transition-colors">
+        <h2 className="text-2xl font-bold text-gray-500 dark:text-gray-400 animate-pulse">Loading TalkFlow...</h2>
       </div>
     );
   }
@@ -56,7 +56,7 @@ export default function ChatDashboard() {
   }
 
   return (
-    <div className="h-screen w-full flex bg-gray-50 overflow-hidden font-sans">
+    <div className="h-screen w-full flex bg-gray-50 dark:bg-slate-900 overflow-hidden font-sans transition-colors">
       <div className={`w-full md:w-80 h-full flex-shrink-0 ${selectedUser ? 'hidden md:block' : 'block'}`}>
         <Sidebar 
           onSelectUser={handleSelectUser} 
@@ -75,9 +75,9 @@ export default function ChatDashboard() {
             activeConversation={activeConversation}
             messages={messages}
             messagesLoading={messagesLoading}
-            onSendMessage={(text) => {
+            onSendMessage={(text, options) => {
               if (activeConversation && selectedUser) {
-                sendMessage(activeConversation.id, selectedUser.id, text);
+                sendMessage(activeConversation.id, selectedUser.id, text, options);
               }
             }}
             onBack={handleBack} 

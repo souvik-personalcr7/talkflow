@@ -7,6 +7,7 @@ export interface IUser extends Document {
   email: string;
   password?: string;
   profileImage?: string;
+  profileImagePublicId?: string;
   isOnline: boolean;
   lastSeen?: Date;
   createdAt: Date;
@@ -25,6 +26,7 @@ const userSchema = new Schema<IUser>(
     email: { type: String, required: true, unique: true, index: true },
     password: { type: String, required: true },
     profileImage: { type: String, default: '' },
+    profileImagePublicId: { type: String, default: null },
     isOnline: { type: Boolean, default: false },
     lastSeen: { type: Date },
     passwordResetOtpHash: { type: String },

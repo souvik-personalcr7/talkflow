@@ -57,9 +57,25 @@ export const useSocketMessages = (activeConversationId?: string) => {
     }
   }, [activeConversationId, unreadCounts]);
 
-  const sendMessage = useCallback((conversationId: string, receiverId: string, text: string) => {
-    if (!text.trim()) return;
-    socket.emit('message:send', { conversationId, receiverId, text });
+  const sendMessage = useCallback((
+    conversationId: string, 
+    receiverId: string, 
+    text: string = '', 
+    options?: {
+      messageType?: 'text' | 'image' | 'file' | 'contact';
+      imageUrl?: string;
+      attachment?: any;
+      contact?: any;
+    }
+  ) => {
+    if (!text.trim() && !options?.imageUrl && !options?.attachment && !options?.contact) return;
+    
+    socket.emit('message:send', { 
+      conversationId, 
+      receiverId, 
+      text,
+      ...options
+    });
   }, []);
 
   const clearMessages = useCallback((conversationId: string) => {
