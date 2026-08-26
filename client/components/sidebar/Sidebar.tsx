@@ -37,7 +37,6 @@ export default function Sidebar({ onSelectUser, selectedUserId, unreadCounts, me
           <Bot className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
           <h1 className="text-xl font-extrabold tracking-tight text-gray-900 dark:text-white">TalkFlow</h1>
         </div>
-        <ConnectionStatus />
       </div>
 
       {/* AI Assistant Button */}
