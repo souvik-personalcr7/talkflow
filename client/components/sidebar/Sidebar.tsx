@@ -100,6 +100,7 @@ export default function Sidebar({ onSelectUser, selectedUserId, unreadCounts, me
             selectedUserId={selectedUserId}
             unreadCounts={unreadCounts}
             messagesByConversation={messagesByConversation}
+            searchTerm={debouncedSearchTerm}
           />
         )}
       </div>

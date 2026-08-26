@@ -11,13 +11,15 @@ interface ConversationListProps {
   selectedUserId?: string;
   unreadCounts?: Record<string, number>;
   messagesByConversation?: Record<string, Message[]>;
+  searchTerm?: string;
 }
 
 export default function ConversationList({ 
   onSelectUser, 
   selectedUserId, 
   unreadCounts = {},
-  messagesByConversation = {}
+  messagesByConversation = {},
+  searchTerm = ''
 }: ConversationListProps) {
   const { conversations, loading, error } = useConversations();
   const { user: currentUser } = useAuth();
@@ -44,7 +46,17 @@ export default function ConversationList({
 
   const filteredConversations = conversations.filter(conv => {
     const validParticipants = conv.participants || [];
-    return validParticipants.some(p => p.id !== currentUser?.id);
+    const hasOther = validParticipants.some(p => p.id !== currentUser?.id);
+    if (!hasOther) return false;
+    
+    if (!searchTerm) return true;
+    
+    const otherParticipant = validParticipants.find(p => p.id !== currentUser?.id);
+    const displayName = otherParticipant?.name?.toLowerCase() || '';
+    const displayUsername = otherParticipant?.username?.toLowerCase() || '';
+    const searchLower = searchTerm.toLowerCase();
+    
+    return displayName.includes(searchLower) || displayUsername.includes(searchLower);
   });
 
   return (
