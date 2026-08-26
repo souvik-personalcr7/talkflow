@@ -1,16 +1,23 @@
 import { Message } from '@/types';
 import { useAuth } from '@/hooks/useAuth';
 import { format } from 'date-fns';
-import { File as FileIcon, Download, User as UserIcon } from 'lucide-react';
+import { File as FileIcon, Download, User as UserIcon, Trash2, Ban } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
 import Avatar from '../ui/Avatar';
 
 interface MessageBubbleProps {
   message: Message;
   isNextSameUser?: boolean;
   isPrevSameUser?: boolean;
+  onDeleteMessage?: (messageId: string, type: 'me' | 'everyone') => void;
 }
 
-export default function MessageBubble({ message, isNextSameUser = false, isPrevSameUser = false }: MessageBubbleProps) {
+export default function MessageBubble({ 
+  message, 
+  isNextSameUser = false, 
+  isPrevSameUser = false,
+  onDeleteMessage
+}: MessageBubbleProps) {
   const { user } = useAuth();
   
   const currentUserId = user?.id || (user as any)?._id;
@@ -40,16 +47,80 @@ export default function MessageBubble({ message, isNextSameUser = false, isPrevS
   const isFile = message.messageType === 'file' && message.attachment;
   const isContact = message.messageType === 'contact' && message.contact;
 
+  const [showMenu, setShowMenu] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleClickOutside(event: MouseEvent | TouchEvent) {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setShowMenu(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    document.addEventListener("touchstart", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+      document.removeEventListener("touchstart", handleClickOutside);
+    };
+  }, [menuRef]);
+
+  const longPressTimer = useRef<NodeJS.Timeout | null>(null);
+
+  const handleTouchStart = () => {
+    longPressTimer.current = setTimeout(() => {
+      setShowMenu(true);
+    }, 500); // 500ms for long press
+  };
+
+  const handleTouchEndOrMove = () => {
+    if (longPressTimer.current) {
+      clearTimeout(longPressTimer.current);
+      longPressTimer.current = null;
+    }
+  };
+
+  const handleDelete = (type: 'me' | 'everyone') => {
+    if (onDeleteMessage) {
+      onDeleteMessage(message.id, type);
+    }
+    setShowMenu(false);
+  };
+
+  if (message.isDeletedForEveryone) {
+    return (
+      <div 
+        className={`flex w-full ${marginBottom}`}
+        style={{ 
+          justifyContent: isOwnMessage ? 'flex-end' : 'flex-start',
+          textAlign: isOwnMessage ? 'right' : 'left'
+        }}
+      >
+        <div 
+          className={`relative flex flex-col w-fit max-w-[85%] md:max-w-[70%] ${cornerClasses} bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 px-3.5 py-2`}
+        >
+          <div className="flex items-center text-gray-500 dark:text-gray-400 italic text-[15px]">
+            <Ban size={16} className="mr-2 opacity-70" />
+            This message was deleted
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div 
-      className={`flex w-full ${marginBottom}`}
+      className={`flex w-full ${marginBottom} group`}
       style={{ 
         justifyContent: isOwnMessage ? 'flex-end' : 'flex-start',
         textAlign: isOwnMessage ? 'right' : 'left'
       }}
     >
       <div 
-        className={`relative flex flex-col w-fit max-w-[85%] md:max-w-[70%] ${cornerClasses} ${colorClasses} ${isImage ? 'p-1' : 'px-3.5 py-2'}`}
+        onTouchStart={handleTouchStart}
+        onTouchEnd={handleTouchEndOrMove}
+        onTouchMove={handleTouchEndOrMove}
+        onContextMenu={(e) => e.preventDefault()}
+        className={`relative flex flex-col w-fit max-w-[85%] md:max-w-[70%] ${cornerClasses} ${colorClasses} ${isImage ? 'p-1' : (isOwnMessage ? 'pl-3.5 pr-8 py-2' : 'pl-8 pr-3.5 py-2')}`}
         style={{
           alignSelf: isOwnMessage ? 'flex-end' : 'flex-start',
           textAlign: 'left'
@@ -117,6 +188,38 @@ export default function MessageBubble({ message, isNextSameUser = false, isPrevS
           <span>{format(new Date(message.createdAt), 'h:mm a')}</span>
           {isOwnMessage && (
             <span className={`ml-1 ${isImage && !message.text ? 'text-white' : 'text-emerald-600 dark:text-emerald-400'}`}>✓✓</span>
+          )}
+        </div>
+
+        {/* Delete Menu Trigger */}
+        <div 
+          className={`absolute top-1 ${isOwnMessage ? 'right-1' : 'left-1'} z-10 transition-opacity ${showMenu ? 'opacity-100' : 'opacity-100 md:opacity-0 md:group-hover:opacity-100'}`} 
+          ref={menuRef}
+        >
+          <button 
+            onClick={() => setShowMenu(!showMenu)}
+            className="p-1.5 rounded-full text-gray-500 hover:text-gray-700 dark:text-gray-300 dark:hover:text-gray-100 transition-all"
+          >
+            <Trash2 size={14} />
+          </button>
+          
+          {showMenu && (
+            <div className={`absolute top-8 ${isOwnMessage ? 'right-0' : 'left-0'} z-10 w-48 bg-white dark:bg-slate-800 rounded-lg shadow-xl border border-gray-100 dark:border-slate-700 overflow-hidden`}>
+              <button 
+                onClick={() => handleDelete('me')}
+                className="w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors"
+              >
+                Delete for me
+              </button>
+              {isOwnMessage && (
+                <button 
+                  onClick={() => handleDelete('everyone')}
+                  className="w-full text-left px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 transition-colors"
+                >
+                  Delete for everyone
+                </button>
+              )}
+            </div>
           )}
         </div>
       </div>

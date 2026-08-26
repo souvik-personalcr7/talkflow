@@ -141,6 +141,28 @@ export const initializeSocket = (io: Server) => {
       }
     });
 
+    // 4.5 Handle message deletion (for everyone)
+    socket.on('message:delete', async (payload: {
+      messageId: string,
+      conversationId: string,
+      receiverId: string
+    }) => {
+      try {
+        const { messageId, conversationId, receiverId } = payload;
+        
+        if (!messageId || !conversationId || !receiverId) return;
+        
+        // Broadcast to receiver
+        io.to(`user:${receiverId}`).emit('message:deleted', {
+          messageId,
+          conversationId
+        });
+        
+      } catch (err) {
+        console.error('Error handling message:delete:', err);
+      }
+    });
+
     // 5. Handle typing indicators
     socket.on('typing:start', (payload: { conversationId: string, receiverId: string }) => {
       if (!payload || typeof payload !== 'object' || !payload.receiverId || !payload.conversationId) return;

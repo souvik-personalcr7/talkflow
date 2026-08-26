@@ -18,7 +18,7 @@ export default function ChatDashboard() {
   
   const [messagesLoading, setMessagesLoading] = useState(false);
   const { createOrGetConversation } = useConversations();
-  const { messages, unreadCounts, sendMessage, messagesByConversation, fetchMessages } = useSocketMessages(activeConversation?.id);
+  const { messages, unreadCounts, sendMessage, deleteMessage, messagesByConversation, fetchMessages } = useSocketMessages(activeConversation?.id);
   
   // Initialize socket connection
   useSocket();
@@ -78,6 +78,11 @@ export default function ChatDashboard() {
             onSendMessage={(text, options) => {
               if (activeConversation && selectedUser) {
                 sendMessage(activeConversation.id, selectedUser.id, text, options);
+              }
+            }}
+            onDeleteMessage={(messageId, type) => {
+              if (activeConversation && selectedUser) {
+                deleteMessage(messageId, activeConversation.id, selectedUser.id, type);
               }
             }}
             onBack={handleBack} 

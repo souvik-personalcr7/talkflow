@@ -1,5 +1,5 @@
 import express from 'express';
-import { getMessages, uploadImage, uploadFile } from '../controllers/messageController';
+import { getMessages, uploadImage, uploadFile, deleteMessage } from '../controllers/messageController';
 import { protect } from '../middleware/authMiddleware';
 import { upload, uploadFileMiddleware } from '../middleware/uploadMiddleware';
 
@@ -13,5 +13,8 @@ router.post('/upload-file', protect, uploadFileMiddleware.single('file'), upload
 
 // Get messages for a private conversation with another user
 router.get('/:otherUserId', protect, getMessages);
+
+// Delete a message
+router.delete('/:messageId', protect, deleteMessage);
 
 export default router;

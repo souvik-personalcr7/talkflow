@@ -20,6 +20,8 @@ export interface IMessage extends Document {
     profilePicture?: string;
   };
   isSeen: boolean;
+  deletedFor: mongoose.Types.ObjectId[];
+  isDeletedForEveryone: boolean;
   createdAt: Date;
   updatedAt: Date;
 }
@@ -70,6 +72,14 @@ const messageSchema = new Schema<IMessage>(
       profilePicture: String,
     },
     isSeen: {
+      type: Boolean,
+      default: false,
+    },
+    deletedFor: [{
+      type: Schema.Types.ObjectId,
+      ref: 'User',
+    }],
+    isDeletedForEveryone: {
       type: Boolean,
       default: false,
     },

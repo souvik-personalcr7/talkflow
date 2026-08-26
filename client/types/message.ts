@@ -19,6 +19,7 @@ export interface Message {
     profilePicture?: string;
   };
   isSeen: boolean;
+  isDeletedForEveryone?: boolean;
   createdAt: string;
   updatedAt: string;
 }

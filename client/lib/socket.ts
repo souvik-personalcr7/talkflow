@@ -7,7 +7,6 @@ const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:5000'
 export const socket: Socket = io(SOCKET_URL, {
   autoConnect: false,
   withCredentials: true,
-  transports: ['websocket'],
   reconnection: true,
   reconnectionAttempts: Infinity,
   reconnectionDelay: 1000,

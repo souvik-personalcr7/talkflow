@@ -40,10 +40,30 @@ export const useSocketMessages = (activeConversationId?: string) => {
       }
     };
 
+    const handleMessageDeleted = (payload: { messageId: string, conversationId: string }) => {
+      const { messageId, conversationId } = payload;
+      
+      setMessagesByConversation(prev => {
+        const currentMessages = prev[conversationId];
+        if (!currentMessages) return prev;
+        
+        return {
+          ...prev,
+          [conversationId]: currentMessages.map(msg => 
+            msg.id === messageId 
+              ? { ...msg, isDeletedForEveryone: true, text: '', imageUrl: '', attachment: undefined, contact: undefined } 
+              : msg
+          )
+        };
+      });
+    };
+
     socket.on('message:new', handleNewMessage);
+    socket.on('message:deleted', handleMessageDeleted);
 
     return () => {
       socket.off('message:new', handleNewMessage);
+      socket.off('message:deleted', handleMessageDeleted);
     };
   }, [activeConversationId]);
 
@@ -76,6 +96,47 @@ export const useSocketMessages = (activeConversationId?: string) => {
       text,
       ...options
     });
+  }, []);
+
+  const deleteMessage = useCallback(async (
+    messageId: string, 
+    conversationId: string, 
+    receiverId: string,
+    type: 'me' | 'everyone'
+  ) => {
+    try {
+      const res = await api.delete(`/messages/${messageId}`, { data: { type } });
+      
+      if (res.data.success) {
+        if (type === 'me') {
+          // Remove from local state
+          setMessagesByConversation(prev => {
+            const currentMessages = prev[conversationId] || [];
+            return {
+              ...prev,
+              [conversationId]: currentMessages.filter(msg => msg.id !== messageId)
+            };
+          });
+        } else if (type === 'everyone') {
+          // Update local state to show it as deleted
+          setMessagesByConversation(prev => {
+            const currentMessages = prev[conversationId] || [];
+            return {
+              ...prev,
+              [conversationId]: currentMessages.map(msg => 
+                msg.id === messageId 
+                  ? { ...msg, isDeletedForEveryone: true, text: '', imageUrl: '', attachment: undefined, contact: undefined } 
+                  : msg
+              )
+            };
+          });
+          // Emit socket event to notify receiver
+          socket.emit('message:delete', { messageId, conversationId, receiverId });
+        }
+      }
+    } catch (error) {
+      console.error('Failed to delete message:', error);
+    }
   }, []);
 
   const clearMessages = useCallback((conversationId: string) => {
@@ -119,6 +180,7 @@ export const useSocketMessages = (activeConversationId?: string) => {
     messages: activeConversationId ? (messagesByConversation[activeConversationId] || []) : [],
     unreadCounts,
     sendMessage,
+    deleteMessage,
     clearMessages,
     fetchMessages,
     messagesByConversation // Expose this if needed for previews

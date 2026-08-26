@@ -10,9 +10,10 @@ interface MessageListProps {
   activeConversation: Conversation | null;
   messages: Message[];
   messagesLoading: boolean;
+  onDeleteMessage?: (messageId: string, type: 'me' | 'everyone') => void;
 }
 
-export default function MessageList({ selectedUser, activeConversation, messages, messagesLoading }: MessageListProps) {
+export default function MessageList({ selectedUser, activeConversation, messages, messagesLoading, onDeleteMessage }: MessageListProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom when messages change
@@ -75,6 +76,7 @@ export default function MessageList({ selectedUser, activeConversation, messages
                 message={message} 
                 isNextSameUser={isNextSameUser}
                 isPrevSameUser={isPrevSameUser}
+                onDeleteMessage={onDeleteMessage}
               />
             );
           })}

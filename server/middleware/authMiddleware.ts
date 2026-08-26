@@ -1,7 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import jwt from 'jsonwebtoken';
 import { User } from '../models/User';
-import '../types/express.d'; // Ensure types are loaded
 
 interface JwtPayload {
   userId: string;

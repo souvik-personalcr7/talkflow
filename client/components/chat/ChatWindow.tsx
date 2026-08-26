@@ -14,6 +14,7 @@ interface ChatWindowProps {
   messages?: Message[];
   messagesLoading?: boolean;
   onSendMessage?: (text: string, options?: any) => void | Promise<any>;
+  onDeleteMessage?: (messageId: string, type: 'me' | 'everyone') => void;
   onBack: () => void;
 }
 
@@ -23,6 +24,7 @@ export default function ChatWindow({
   messages = [],
   messagesLoading = false,
   onSendMessage,
+  onDeleteMessage,
   onBack 
 }: ChatWindowProps) {
   const [isTyping, setIsTyping] = useState(false);
@@ -81,6 +83,7 @@ export default function ChatWindow({
         activeConversation={activeConversation}
         messages={messages}
         messagesLoading={messagesLoading}
+        onDeleteMessage={onDeleteMessage}
       />
       {isTyping && (
         <div className="px-6 py-2 text-xs text-gray-500 dark:text-gray-400 italic animate-pulse">
