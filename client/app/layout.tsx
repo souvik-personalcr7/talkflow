@@ -19,6 +19,9 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "TalkFlow",
   description: "One place for every conversation.",
+  icons: {
+    icon: "/logo.png",
+  }
 };
 
 export default function RootLayout({
