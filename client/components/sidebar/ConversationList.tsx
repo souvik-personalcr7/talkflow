@@ -5,6 +5,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { User, Message } from '@/types';
 import { format } from 'date-fns';
 import Avatar from '../ui/Avatar';
+import { BellOff } from 'lucide-react';
 
 interface ConversationListProps {
   onSelectUser: (user: User) => void;
@@ -89,6 +90,7 @@ export default function ConversationList({
             const unreadCount = otherParticipant ? (unreadCounts[otherParticipant.id] || 0) : 0;
             const messages = otherParticipant ? (messagesByConversation[otherParticipant.id] || []) : [];
             const lastMessage = messages.length > 0 ? messages[messages.length - 1] : (conv.lastMessage ? { text: conv.lastMessage, createdAt: conv.lastMessageAt } : null);
+            const isMuted = currentUser && conv.mutedBy?.includes(currentUser.id);
 
             return (
               <li key={conv.id}>
@@ -130,9 +132,12 @@ export default function ConversationList({
                         {displayName}
                       </p>
                       {lastMessage?.createdAt && (
-                        <span className="text-xs text-gray-500 dark:text-gray-400 flex-shrink-0">
-                          {format(new Date(lastMessage.createdAt), 'h:mm a')}
-                        </span>
+                        <div className="flex items-center gap-1.5 flex-shrink-0">
+                          {isMuted && <BellOff className="w-3.5 h-3.5 text-gray-400" />}
+                          <span className="text-xs text-gray-500 dark:text-gray-400">
+                            {format(new Date(lastMessage.createdAt), 'h:mm a')}
+                          </span>
+                        </div>
                       )}
                     </div>
                     

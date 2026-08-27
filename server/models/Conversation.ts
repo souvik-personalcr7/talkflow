@@ -5,6 +5,7 @@ export interface IConversation extends Document {
   participants: mongoose.Types.ObjectId[];
   lastMessage?: string;
   lastMessageAt?: Date;
+  mutedBy: mongoose.Types.ObjectId[];
   createdAt: Date;
   updatedAt: Date;
 }
@@ -30,6 +31,12 @@ const conversationSchema = new Schema<IConversation>(
     lastMessageAt: {
       type: Date,
     },
+    mutedBy: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: 'User',
+      },
+    ],
   },
   {
     timestamps: true,

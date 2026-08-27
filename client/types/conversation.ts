@@ -6,6 +6,7 @@ export interface Conversation {
   participants: User[];
   lastMessage?: string;
   lastMessageAt?: string | null;
+  mutedBy?: string[];
   createdAt: string;
   updatedAt: string;
 }

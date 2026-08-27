@@ -49,6 +49,7 @@ export const createOrGetConversation = async (req: Request, res: Response): Prom
             })),
             lastMessage: existingConversation.lastMessage,
             lastMessageAt: existingConversation.lastMessageAt,
+            mutedBy: existingConversation.mutedBy,
             createdAt: existingConversation.createdAt,
             updatedAt: existingConversation.updatedAt,
           }
@@ -72,6 +73,7 @@ export const createOrGetConversation = async (req: Request, res: Response): Prom
           participants: newConversation.participants.map((p: any) => ({
             id: p._id || p,
           })),
+          mutedBy: newConversation.mutedBy || [],
           createdAt: newConversation.createdAt,
           updatedAt: newConversation.updatedAt,
         }
@@ -111,6 +113,7 @@ export const getConversations = async (req: Request, res: Response): Promise<voi
       })),
       lastMessage: conv.lastMessage,
       lastMessageAt: conv.lastMessageAt,
+      mutedBy: conv.mutedBy,
       createdAt: conv.createdAt,
       updatedAt: conv.updatedAt,
     }));
@@ -171,6 +174,7 @@ export const getConversation = async (req: Request, res: Response): Promise<void
           })),
           lastMessage: conversation.lastMessage,
           lastMessageAt: conversation.lastMessageAt,
+          mutedBy: conversation.mutedBy,
           createdAt: conversation.createdAt,
           updatedAt: conversation.updatedAt,
         }
@@ -178,6 +182,57 @@ export const getConversation = async (req: Request, res: Response): Promise<void
     });
   } catch (error: any) {
     console.error('Get conversation error:', error);
+    res.status(500).json({ success: false, message: 'Server error' });
+  }
+};
+
+export const toggleMuteConversation = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const { conversationId } = req.params;
+    const userId = req.user?._id;
+
+    if (!userId) {
+      res.status(401).json({ success: false, message: 'Unauthorized' });
+      return;
+    }
+
+    const conversation = await Conversation.findById(conversationId);
+    if (!conversation) {
+      res.status(404).json({ success: false, message: 'Conversation not found' });
+      return;
+    }
+
+    // Verify user is a participant
+    const isParticipant = conversation.participants.some(
+      (p: any) => p._id.toString() === userId.toString()
+    );
+
+    if (!isParticipant) {
+      res.status(403).json({ success: false, message: 'Access denied' });
+      return;
+    }
+
+    const mutedIndex = conversation.mutedBy.findIndex((id: any) => id.toString() === userId.toString());
+    
+    if (mutedIndex > -1) {
+      // Unmute
+      conversation.mutedBy.splice(mutedIndex, 1);
+    } else {
+      // Mute
+      conversation.mutedBy.push(userId as any);
+    }
+
+    await conversation.save();
+
+    res.status(200).json({
+      success: true,
+      message: mutedIndex > -1 ? 'Conversation unmuted' : 'Conversation muted',
+      data: {
+        mutedBy: conversation.mutedBy
+      }
+    });
+  } catch (error: any) {
+    console.error('Toggle mute conversation error:', error);
     res.status(500).json({ success: false, message: 'Server error' });
   }
 };

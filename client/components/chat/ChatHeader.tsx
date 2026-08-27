@@ -1,16 +1,50 @@
 'use client';
 
-import { User } from '@/types';
-import { Bot } from 'lucide-react';
+import { User as UserType } from '@/types';
+import { Bot, EllipsisVertical, User as UserIcon, Ban, BellOff, Bell, Phone, Video } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
 import Avatar from '../ui/Avatar';
 import ThemeToggle from '../ui/ThemeToggle';
 
 interface ChatHeaderProps {
-  user: User;
+  user: UserType;
   onBack: () => void;
+  blockStatus?: { blockedByMe: boolean; blockedByThem: boolean } | null;
+  onBlockClick?: () => void;
+  onUnblockClick?: () => void;
+  isMuted?: boolean;
+  onMuteClick?: () => void;
+  onCallClick?: () => void;
+  onVideoCallClick?: () => void;
 }
 
-export default function ChatHeader({ user, onBack }: ChatHeaderProps) {
+export default function ChatHeader({ user, onBack, blockStatus, onBlockClick, onUnblockClick, isMuted, onMuteClick, onCallClick, onVideoCallClick }: ChatHeaderProps) {
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const menuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    };
+    
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsMenuOpen(false);
+      }
+    };
+
+    if (isMenuOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleKeyDown);
+    }
+    
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isMenuOpen]);
   return (
     <div className="h-16 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-slate-900 flex items-center justify-between px-4 flex-shrink-0 transition-colors">
       <div className="flex items-center flex-1 min-w-0">
@@ -53,8 +87,91 @@ export default function ChatHeader({ user, onBack }: ChatHeaderProps) {
         </div>
       </div>
       
-      <div className="flex-shrink-0 ml-2">
+      <div className="flex-shrink-0 ml-2 flex items-center gap-2">
         <ThemeToggle />
+        
+        {user.id !== 'ai' && (
+          <div className="relative" ref={menuRef}>
+            <button
+              onClick={() => setIsMenuOpen(!isMenuOpen)}
+              className="p-2 text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              aria-label="Chat options"
+              aria-expanded={isMenuOpen}
+              aria-haspopup="true"
+            >
+              <EllipsisVertical className="w-5 h-5" />
+            </button>
+            
+            {isMenuOpen && (
+              <div className="absolute right-0 mt-2 w-56 bg-white dark:bg-slate-800 rounded-xl shadow-lg border border-gray-100 dark:border-gray-700 py-1 z-50 animate-in fade-in slide-in-from-top-2">
+                <button
+                  className="w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center gap-3 transition-colors"
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    onCallClick?.();
+                  }}
+                >
+                  <Phone className="w-4 h-4 text-gray-400" />
+                  <span>Call</span>
+                </button>
+                <button
+                  className="w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center gap-3 transition-colors"
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    onVideoCallClick?.();
+                  }}
+                >
+                  <Video className="w-4 h-4 text-gray-400" />
+                  <span>Video Call</span>
+                </button>
+                
+                {blockStatus?.blockedByMe ? (
+                  <button
+                    className="w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center gap-3 transition-colors"
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      onUnblockClick?.();
+                    }}
+                  >
+                    <Ban className="w-4 h-4 text-gray-400" />
+                    <span>Unblock {user.name}</span>
+                  </button>
+                ) : (
+                  <button
+                    className="w-full text-left px-4 py-2.5 text-sm text-red-600 dark:text-red-400 hover:bg-red-50 dark:hover:bg-red-900/20 flex items-center gap-3 transition-colors"
+                    onClick={() => {
+                      setIsMenuOpen(false);
+                      onBlockClick?.();
+                    }}
+                  >
+                    <Ban className="w-4 h-4" />
+                    <span>Block {user.name}</span>
+                  </button>
+                )}
+
+                <button
+                  className="w-full text-left px-4 py-2.5 text-sm text-gray-700 dark:text-gray-200 hover:bg-gray-50 dark:hover:bg-slate-700 flex items-center gap-3 transition-colors"
+                  onClick={() => {
+                    setIsMenuOpen(false);
+                    onMuteClick?.();
+                  }}
+                >
+                  {isMuted ? (
+                    <>
+                      <Bell className="w-4 h-4 text-gray-400" />
+                      <span>Unmute Notifications</span>
+                    </>
+                  ) : (
+                    <>
+                      <BellOff className="w-4 h-4 text-gray-400" />
+                      <span>Mute Notifications</span>
+                    </>
+                  )}
+                </button>
+              </div>
+            )}
+          </div>
+        )}
       </div>
     </div>
   );

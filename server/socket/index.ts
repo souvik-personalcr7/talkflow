@@ -4,10 +4,14 @@ import { AuthenticatedSocket, socketAuth } from './socketAuth';
 import { User } from '../models/User';
 import { Conversation } from '../models/Conversation';
 import { Message } from '../models/Message';
+import { Block } from '../models/Block';
 
 // In-memory active connection tracking
 // Maps userId -> count of active socket connections
 const activeConnections = new Map<string, number>();
+
+// In-memory tracking of users currently in an active call (to return 'busy' status)
+const busyUsers = new Set<string>();
 
 export const initializeSocket = (io: Server) => {
   // Use authentication middleware
@@ -81,6 +85,18 @@ export const initializeSocket = (io: Server) => {
 
         if (!isValidReceiver) {
           return socket.emit('message:error', { message: 'Invalid receiver for this conversation' });
+        }
+
+        // Check if a block exists between sender and receiver
+        const blockExists = await Block.findOne({
+          $or: [
+            { blocker: userId, blocked: receiverId },
+            { blocker: receiverId, blocked: userId }
+          ]
+        });
+
+        if (blockExists) {
+          return socket.emit('message:error', { message: 'Cannot send message. A block is active.' });
         }
 
         // Save message to MongoDB
@@ -188,7 +204,114 @@ export const initializeSocket = (io: Server) => {
       });
     });
 
-    // 6. Handle disconnect
+    // 6. Handle WebRTC Calls
+    socket.on('call:initiate', async (payload: { receiverId: string, type: 'audio' | 'video' }) => {
+      try {
+        const { receiverId, type } = payload;
+        
+        if (!receiverId || !type) return;
+
+        // Check if caller is already busy
+        if (busyUsers.has(userId)) {
+          return socket.emit('call:error', { message: 'You are already in a call.' });
+        }
+
+        // Check if receiver is online
+        const receiverActiveCount = activeConnections.get(receiverId) || 0;
+        if (receiverActiveCount === 0) {
+          return socket.emit('call:unavailable', { message: 'User is offline.' });
+        }
+
+        // Check if receiver is busy
+        if (busyUsers.has(receiverId)) {
+          return socket.emit('call:busy', { message: 'User is currently busy.' });
+        }
+
+        // Check if a block exists between sender and receiver
+        const blockExists = await Block.findOne({
+          $or: [
+            { blocker: userId, blocked: receiverId },
+            { blocker: receiverId, blocked: userId }
+          ]
+        });
+
+        if (blockExists) {
+          return socket.emit('call:error', { message: 'Call unavailable because this user is blocked.' });
+        }
+
+        // Forward to receiver
+        io.to(`user:${receiverId}`).emit('call:incoming', {
+          callerId: userId,
+          callerName: user.name, // send name for UI
+          type
+        });
+
+      } catch (err) {
+        console.error('Error handling call:initiate:', err);
+      }
+    });
+
+    socket.on('call:accept', (payload: { callerId: string }) => {
+      const { callerId } = payload;
+      if (!callerId) return;
+
+      // Mark both as busy
+      busyUsers.add(userId);
+      busyUsers.add(callerId);
+
+      io.to(`user:${callerId}`).emit('call:accepted', {
+        receiverId: userId
+      });
+    });
+
+    socket.on('call:decline', (payload: { callerId: string }) => {
+      const { callerId } = payload;
+      if (!callerId) return;
+
+      // Ensure they are not marked busy if declined
+      busyUsers.delete(userId);
+      
+      io.to(`user:${callerId}`).emit('call:declined', {
+        receiverId: userId
+      });
+    });
+
+    socket.on('call:end', (payload: { otherUserId: string }) => {
+      const { otherUserId } = payload;
+      
+      // Remove both from busy set
+      busyUsers.delete(userId);
+      if (otherUserId) {
+        busyUsers.delete(otherUserId);
+        io.to(`user:${otherUserId}`).emit('call:ended', {
+          userId
+        });
+      }
+    });
+
+    // WebRTC Signaling Relays
+    socket.on('call:offer', (payload: { receiverId: string, offer: RTCSessionDescriptionInit }) => {
+      const { receiverId, offer } = payload;
+      if (receiverId && offer) {
+        io.to(`user:${receiverId}`).emit('call:offer', { callerId: userId, offer });
+      }
+    });
+
+    socket.on('call:answer', (payload: { callerId: string, answer: RTCSessionDescriptionInit }) => {
+      const { callerId, answer } = payload;
+      if (callerId && answer) {
+        io.to(`user:${callerId}`).emit('call:answer', { receiverId: userId, answer });
+      }
+    });
+
+    socket.on('call:ice-candidate', (payload: { targetId: string, candidate: RTCIceCandidateInit }) => {
+      const { targetId, candidate } = payload;
+      if (targetId && candidate) {
+        io.to(`user:${targetId}`).emit('call:ice-candidate', { senderId: userId, candidate });
+      }
+    });
+
+    // 7. Handle disconnect
     socket.on('disconnect', async () => {
       console.log(`[SOCKET DISCONNECT] userId: ${userId}, socketId: ${socket.id}`);
       const count = activeConnections.get(userId) || 0;
@@ -212,6 +335,15 @@ export const initializeSocket = (io: Server) => {
         }
       } else {
         activeConnections.set(userId, count - 1);
+      }
+
+      // Cleanup busy state and notify peer if disconnected during a call
+      if (busyUsers.has(userId)) {
+        busyUsers.delete(userId);
+        // Ideally, we'd know who they were talking to and notify them to end the call.
+        // For now, the client WebRTC connection will drop (iceConnectionState -> disconnected) 
+        // which the frontend will catch to end the call locally.
+        // Broadcasting to everyone they are offline helps the other party too.
       }
     });
   });

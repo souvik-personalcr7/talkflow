@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getUsers, searchUsers, getUserById, uploadProfilePicture, removeProfilePicture } from '../controllers/userController';
+import { getUsers, searchUsers, getUserById, uploadProfilePicture, removeProfilePicture, blockUser, unblockUser, getBlockStatus } from '../controllers/userController';
 import { protect } from '../middleware/authMiddleware';
 import { upload } from '../middleware/uploadMiddleware';
 
@@ -13,5 +13,10 @@ router.delete('/profile-picture', protect, removeProfilePicture);
 router.get('/search', protect, searchUsers);
 router.get('/:id', protect, getUserById);
 router.get('/', protect, getUsers);
+
+// Block user routes
+router.post('/:id/block', protect, blockUser);
+router.delete('/:id/block', protect, unblockUser);
+router.get('/:id/block-status', protect, getBlockStatus);
 
 export default router;

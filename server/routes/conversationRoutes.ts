@@ -1,5 +1,5 @@
 import express from 'express';
-import { createOrGetConversation, getConversations, getConversation } from '../controllers/conversationController';
+import { createOrGetConversation, getConversations, getConversation, toggleMuteConversation } from '../controllers/conversationController';
 import { protect } from '../middleware/authMiddleware';
 
 const router = express.Router();
@@ -13,5 +13,7 @@ router.route('/')
 
 router.route('/:conversationId')
   .get(getConversation);
+
+router.post('/:conversationId/mute', toggleMuteConversation);
 
 export default router;

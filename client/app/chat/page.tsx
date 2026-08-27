@@ -10,6 +10,8 @@ import { User, Conversation } from '@/types';
 import { useConversations } from '@/hooks/useConversations';
 import { useSocketMessages } from '@/hooks/useSocketMessages';
 import { useSocket } from '@/hooks/useSocket';
+import { CallProvider } from '@/contexts/CallContext';
+import CallModal from '@/components/calls/CallModal';
 
 export default function ChatDashboard() {
   const { user, loading } = useAuth();
@@ -56,8 +58,11 @@ export default function ChatDashboard() {
   }
 
   return (
-    <div className="h-screen w-full flex bg-gray-50 dark:bg-slate-900 overflow-hidden font-sans transition-colors">
-      <div className={`w-full md:w-80 h-full flex-shrink-0 ${selectedUser ? 'hidden md:block' : 'block'}`}>
+    <CallProvider>
+      <div className="h-screen w-full flex bg-gray-50 dark:bg-slate-900 overflow-hidden font-sans transition-colors relative">
+        <CallModal />
+        
+        <div className={`w-full md:w-80 h-full flex-shrink-0 ${selectedUser ? 'hidden md:block' : 'block'}`}>
         <Sidebar 
           onSelectUser={handleSelectUser} 
           selectedUserId={selectedUser?.id}
@@ -90,5 +95,6 @@ export default function ChatDashboard() {
         )}
       </div>
     </div>
+    </CallProvider>
   );
 }

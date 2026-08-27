@@ -1,5 +1,6 @@
 import { Request, Response } from 'express';
 import { User } from '../models/User';
+import { Block } from '../models/Block';
 import mongoose from 'mongoose';
 import cloudinary from '../config/cloudinary';
 
@@ -243,5 +244,123 @@ export const removeProfilePicture = async (req: Request, res: Response): Promise
   } catch (error) {
     console.error('Error removing profile picture:', error);
     res.status(500).json({ success: false, message: 'Server error removing picture' });
+  }
+};
+
+// @route   POST /api/users/:id/block
+// @desc    Block a user
+// @access  Private
+export const blockUser = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const currentUserId = req.user?._id;
+    const { id: blockedUserId } = req.params;
+
+    if (!currentUserId) {
+      res.status(401).json({ success: false, message: 'Not authorized' });
+      return;
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(blockedUserId)) {
+      res.status(400).json({ success: false, message: 'Invalid user ID' });
+      return;
+    }
+
+    if (currentUserId.toString() === blockedUserId) {
+      res.status(400).json({ success: false, message: 'Cannot block yourself' });
+      return;
+    }
+
+    const blockedUserExists = await User.findById(blockedUserId);
+    if (!blockedUserExists) {
+      res.status(404).json({ success: false, message: 'User not found' });
+      return;
+    }
+
+    const existingBlock = await Block.findOne({ blocker: currentUserId, blocked: blockedUserId });
+    if (existingBlock) {
+      res.status(400).json({ success: false, message: 'User is already blocked' });
+      return;
+    }
+
+    await Block.create({ blocker: currentUserId, blocked: blockedUserId });
+
+    res.status(200).json({
+      success: true,
+      message: 'User blocked successfully'
+    });
+  } catch (error) {
+    console.error('Error blocking user:', error);
+    res.status(500).json({ success: false, message: 'Server error blocking user' });
+  }
+};
+
+// @route   DELETE /api/users/:id/block
+// @desc    Unblock a user
+// @access  Private
+export const unblockUser = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const currentUserId = req.user?._id;
+    const { id: blockedUserId } = req.params;
+
+    if (!currentUserId) {
+      res.status(401).json({ success: false, message: 'Not authorized' });
+      return;
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(blockedUserId)) {
+      res.status(400).json({ success: false, message: 'Invalid user ID' });
+      return;
+    }
+
+    const result = await Block.findOneAndDelete({ blocker: currentUserId, blocked: blockedUserId });
+    
+    if (!result) {
+      res.status(404).json({ success: false, message: 'Block relationship not found' });
+      return;
+    }
+
+    res.status(200).json({
+      success: true,
+      message: 'User unblocked successfully'
+    });
+  } catch (error) {
+    console.error('Error unblocking user:', error);
+    res.status(500).json({ success: false, message: 'Server error unblocking user' });
+  }
+};
+
+// @route   GET /api/users/:id/block-status
+// @desc    Check if current user has blocked the target user, or vice versa
+// @access  Private
+export const getBlockStatus = async (req: Request, res: Response): Promise<void> => {
+  try {
+    const currentUserId = req.user?._id;
+    const { id: otherUserId } = req.params;
+
+    if (!currentUserId) {
+      res.status(401).json({ success: false, message: 'Not authorized' });
+      return;
+    }
+
+    if (!mongoose.Types.ObjectId.isValid(otherUserId)) {
+      res.status(400).json({ success: false, message: 'Invalid user ID' });
+      return;
+    }
+
+    const [blockedByMe, blockedByThem] = await Promise.all([
+      Block.findOne({ blocker: currentUserId, blocked: otherUserId }),
+      Block.findOne({ blocker: otherUserId, blocked: currentUserId })
+    ]);
+
+    res.status(200).json({
+      success: true,
+      data: {
+        blockedByMe: !!blockedByMe,
+        blockedByThem: !!blockedByThem
+      }
+    });
+  } catch (error) {
+    console.error('Error fetching block status:', error);
+    res.status(500).json({ success: false, message: 'Server error fetching block status' });
   }
 };

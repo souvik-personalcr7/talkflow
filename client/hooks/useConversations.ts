@@ -65,10 +65,16 @@ export const useConversations = () => {
       }));
     };
 
+    const handleConversationsUpdated = () => {
+      fetchConversations();
+    };
+
     socket.on('user:profile-update', handleProfileUpdate);
+    window.addEventListener('conversations:updated', handleConversationsUpdated);
 
     return () => {
       socket.off('user:profile-update', handleProfileUpdate);
+      window.removeEventListener('conversations:updated', handleConversationsUpdated);
     };
   }, [fetchConversations]);
 
