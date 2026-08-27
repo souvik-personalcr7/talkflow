@@ -260,7 +260,7 @@ export const blockUser = async (req: Request, res: Response): Promise<void> => {
       return;
     }
 
-    if (!mongoose.Types.ObjectId.isValid(blockedUserId)) {
+    if (!mongoose.Types.ObjectId.isValid(blockedUserId as string)) {
       res.status(400).json({ success: false, message: 'Invalid user ID' });
       return;
     }
@@ -307,7 +307,7 @@ export const unblockUser = async (req: Request, res: Response): Promise<void> =>
       return;
     }
 
-    if (!mongoose.Types.ObjectId.isValid(blockedUserId)) {
+    if (!mongoose.Types.ObjectId.isValid(blockedUserId as string)) {
       res.status(400).json({ success: false, message: 'Invalid user ID' });
       return;
     }
@@ -342,7 +342,7 @@ export const getBlockStatus = async (req: Request, res: Response): Promise<void>
       return;
     }
 
-    if (!mongoose.Types.ObjectId.isValid(otherUserId)) {
+    if (!mongoose.Types.ObjectId.isValid(otherUserId as string)) {
       res.status(400).json({ success: false, message: 'Invalid user ID' });
       return;
     }
