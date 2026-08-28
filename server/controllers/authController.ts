@@ -47,7 +47,7 @@ export const register = async (req: Request, res: Response): Promise<void> => {
     res.cookie('talkflow_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
@@ -92,7 +92,7 @@ export const login = async (req: Request, res: Response): Promise<void> => {
     res.cookie('talkflow_token', token, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'lax',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     });
 
@@ -118,6 +118,8 @@ export const logout = async (req: Request, res: Response): Promise<void> => {
     
     res.cookie('talkflow_token', '', {
       httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
       expires: new Date(0),
     });
     res.status(200).json({ success: true, message: 'Logged out successfully' });

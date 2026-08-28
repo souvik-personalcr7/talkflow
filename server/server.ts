@@ -14,6 +14,7 @@ dotenv.config();
 connectDB();
 
 const app = express();
+app.set('trust proxy', 1); // Trust the reverse proxy (Render) to allow secure cookies
 const server = http.createServer(app);
 
 import authRoutes from './routes/authRoutes';
