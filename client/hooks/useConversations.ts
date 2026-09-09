@@ -4,17 +4,33 @@ import { Conversation, User } from '../types';
 import { socket } from '../lib/socket';
 
 export const useConversations = () => {
-  const [conversations, setConversations] = useState<Conversation[]>([]);
+  // Optimistically restore cached conversations to render immediately
+  const [conversations, setConversations] = useState<Conversation[]>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const cached = localStorage.getItem('talkflow_cached_conversations');
+        if (cached) return JSON.parse(cached);
+      } catch (_) {}
+    }
+    return [];
+  });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const fetchConversations = useCallback(async () => {
-    setLoading(true);
+    // Only show loading indicator if we don't have any cached conversations
+    if (conversations.length === 0) {
+      setLoading(true);
+    }
     setError(null);
     try {
       const res = await api.get('/conversations');
       if (res.data.success) {
-        setConversations(res.data.data.conversations);
+        const convList = res.data.data.conversations;
+        setConversations(convList);
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('talkflow_cached_conversations', JSON.stringify(convList));
+        }
       } else {
         setError(res.data.message || 'Failed to fetch conversations');
       }
@@ -23,7 +39,7 @@ export const useConversations = () => {
     } finally {
       setLoading(false);
     }
-  }, []);
+  }, [conversations.length]);
 
   const createOrGetConversation = async (receiverId: string): Promise<Conversation | null> => {
     setLoading(true);

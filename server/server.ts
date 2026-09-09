@@ -1,5 +1,6 @@
 import express from 'express';
 import http from 'http';
+import https from 'https';
 import { Server } from 'socket.io';
 import cors from 'cors';
 import helmet from 'helmet';
@@ -75,4 +76,20 @@ const PORT = process.env.PORT || 5000;
 
 server.listen(PORT, () => {
   console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+
+  // Automated Keep-Alive for free-tier cloud deployments (Render, Railway, Fly.io)
+  // Render spins down after 15 mins of inactivity. Pinging every 14 mins keeps it warm 24/7!
+  const backendUrl = process.env.RENDER_EXTERNAL_URL || process.env.BACKEND_URL || process.env.SERVER_URL;
+  if (backendUrl) {
+    const PING_INTERVAL = 14 * 60 * 1000; // 14 minutes
+    const clientLib = backendUrl.startsWith('https') ? https : http;
+    setInterval(() => {
+      clientLib.get(`${backendUrl}/api/health`, (res) => {
+        console.log(`[Keep-Alive] Pinged ${backendUrl}/api/health (status ${res.statusCode})`);
+      }).on('error', (err) => {
+        console.log(`[Keep-Alive] Ping warning: ${err.message}`);
+      });
+    }, PING_INTERVAL);
+    console.log(`[Keep-Alive] Configured for ${backendUrl} every 14 minutes`);
+  }
 });

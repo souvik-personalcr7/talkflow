@@ -47,8 +47,10 @@ export default function ChatDashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-gray-100 transition-colors">
-        <h2 className="text-2xl font-bold text-gray-500 dark:text-gray-400 animate-pulse">Loading TalkFlow...</h2>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-gray-100 transition-colors p-4">
+        <div className="w-10 h-10 border-3 border-indigo-200 dark:border-indigo-900/50 border-t-indigo-600 dark:border-t-indigo-400 rounded-full animate-spin mb-4" />
+        <h2 className="text-xl font-bold text-gray-800 dark:text-gray-200 tracking-tight">TalkFlow</h2>
+        <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">Connecting to server...</p>
       </div>
     );
   }

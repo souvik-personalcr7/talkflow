@@ -3,7 +3,14 @@ import axios from 'axios';
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api',
   withCredentials: true,
+  timeout: 30000, // 30s timeout to prevent hanging connections
 });
+
+// Immediately pre-warm the backend server on cloud deployment (e.g. Render free tier cold starts)
+if (typeof window !== 'undefined') {
+  // Fire-and-forget lightweight health check to trigger spin-up as early as possible
+  api.get('/health', { timeout: 15000 }).catch(() => {});
+}
 
 api.interceptors.response.use(
   (response) => response,

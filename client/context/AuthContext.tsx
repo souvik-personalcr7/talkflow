@@ -18,33 +18,73 @@ interface AuthContextType {
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
+  // Optimistically restore cached user from localStorage to render immediately (0ms wait)
+  const [user, setUser] = useState<User | null>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const cached = localStorage.getItem('talkflow_user');
+        if (cached) return JSON.parse(cached);
+      } catch (_) {}
+    }
+    return null;
+  });
+
+  // If user was cached, don't block the screen with a full-screen loading spinner
+  const [loading, setLoading] = useState<boolean>(() => {
+    if (typeof window !== 'undefined') {
+      try {
+        const cached = localStorage.getItem('talkflow_user');
+        if (cached) return false;
+      } catch (_) {}
+    }
+    return true;
+  });
+
   const router = useRouter();
   const pathname = usePathname();
   const { showToast } = useToast();
 
-  const refreshUser = async () => {
+  const refreshUser = async (isBackground = false) => {
     try {
-      setLoading(true);
+      if (!isBackground) setLoading(true);
       const res = await api.get('/auth/me');
       if (res.data.success) {
-        setUser(res.data.data.user);
+        const userData = res.data.data.user;
+        setUser(userData);
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('talkflow_user', JSON.stringify(userData));
+        }
       } else {
         setUser(null);
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('talkflow_user');
+        }
       }
-    } catch (error) {
-      setUser(null);
+    } catch (error: any) {
+      // Only clear user on actual 401 Unauthorized responses.
+      // If it's a network timeout / offline / cold start, keep the cached user so the app doesn't crash to login!
+      if (error?.response?.status === 401) {
+        setUser(null);
+        if (typeof window !== 'undefined') {
+          localStorage.removeItem('talkflow_user');
+        }
+      }
     } finally {
       setLoading(false);
     }
   };
 
   useEffect(() => {
-    refreshUser();
+    // If cached user exists, validate in background without blocking screen!
+    const hasCachedUser = typeof window !== 'undefined' && !!localStorage.getItem('talkflow_user');
+    refreshUser(hasCachedUser);
 
     const handleUnauthorized = () => {
       setUser(null);
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('talkflow_user');
+        localStorage.removeItem('talkflow_cached_conversations');
+      }
       router.push('/login');
       showToast('Session expired. Please log in again.', 'error');
     };
@@ -57,7 +97,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const res = await api.post('/auth/login', data);
       if (res.data.success) {
-        setUser(res.data.data.user);
+        const userData = res.data.data.user;
+        setUser(userData);
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('talkflow_user', JSON.stringify(userData));
+        }
         router.push('/chat');
         showToast('Logged in successfully', 'success');
       }
@@ -74,7 +118,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const res = await api.post('/auth/register', data);
       if (res.data.success) {
-        setUser(res.data.data.user);
+        const userData = res.data.data.user;
+        setUser(userData);
+        if (typeof window !== 'undefined') {
+          localStorage.setItem('talkflow_user', JSON.stringify(userData));
+        }
         router.push('/chat');
         showToast('Registered successfully', 'success');
       }
@@ -95,6 +143,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       console.error(error);
     } finally {
       setUser(null);
+      if (typeof window !== 'undefined') {
+        localStorage.removeItem('talkflow_user');
+        localStorage.removeItem('talkflow_cached_conversations');
+      }
       router.push('/login');
     }
   };

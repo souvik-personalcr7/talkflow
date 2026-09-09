@@ -3,12 +3,13 @@ import api from '../lib/api';
 import { User } from '../types';
 import { socket } from '../lib/socket';
 
-export const useUsers = (searchQuery: string) => {
+export const useUsers = (searchQuery: string, enabled: boolean = true) => {
   const [users, setUsers] = useState<User[]>([]);
-  const [loading, setLoading] = useState<boolean>(true);
+  const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
 
   const fetchUsers = useCallback(async () => {
+    if (!enabled) return;
     try {
       setLoading(true);
       setError(null);
@@ -30,10 +31,12 @@ export const useUsers = (searchQuery: string) => {
     } finally {
       setLoading(false);
     }
-  }, [searchQuery]);
+  }, [searchQuery, enabled]);
 
   useEffect(() => {
-    fetchUsers();
+    if (enabled) {
+      fetchUsers();
+    }
 
     const handleProfileUpdate = (payload: { userId: string; profileImage: string }) => {
       setUsers(prev => prev.map(u => 

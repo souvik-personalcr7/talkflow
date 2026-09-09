@@ -26,9 +26,10 @@ export default function Sidebar({ onSelectUser, selectedUserId, unreadCounts, me
   const { user: currentUser, logout } = useAuth();
   const [searchTerm, setSearchTerm] = useState('');
   const debouncedSearchTerm = useDebounce(searchTerm, 500);
-  const { users, loading, error } = useUsers(debouncedSearchTerm);
-  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
   const [activeTab, setActiveTab] = useState<'chats' | 'people'>('chats');
+  const isPeopleActive = activeTab === 'people' || debouncedSearchTerm.trim().length > 0;
+  const { users, loading, error } = useUsers(debouncedSearchTerm, isPeopleActive);
+  const [isProfileModalOpen, setIsProfileModalOpen] = useState(false);
 
   return (
     <div className="w-full md:w-80 h-full max-h-full bg-white dark:bg-slate-900 border-r border-gray-200 dark:border-gray-800 flex flex-col transition-colors overflow-hidden relative">
