@@ -105,7 +105,7 @@ export default function AIChatWindow({ onBack }: AIChatWindowProps) {
             <p className="text-gray-500 dark:text-gray-400 mb-8 max-w-md">How can I help you today? I'm your personal AI assistant.</p>
             
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 w-full max-w-lg">
-              {["What is React?", "Explain JWT", "Help me understand MongoDB", "Explain Socket.IO"].map((suggestion, i) => (
+              {["How's your day going?", "Tell me a fun fact or joke 😄", "Help me write a friendly message", "Recommend a good movie or book"].map((suggestion, i) => (
                 <button
                   key={i}
                   onClick={() => setInputText(suggestion)}
