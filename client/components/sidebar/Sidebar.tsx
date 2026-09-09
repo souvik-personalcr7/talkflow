@@ -30,9 +30,9 @@ export default function Sidebar({ onSelectUser, selectedUserId, unreadCounts, me
   const [activeTab, setActiveTab] = useState<'chats' | 'people'>('chats');
 
   return (
-    <div className="w-full md:w-80 h-full bg-white dark:bg-slate-900 border-r border-gray-200 dark:border-gray-800 flex flex-col transition-colors">
+    <div className="w-full md:w-80 h-full max-h-full bg-white dark:bg-slate-900 border-r border-gray-200 dark:border-gray-800 flex flex-col transition-colors overflow-hidden relative">
       {/* Header */}
-      <div className="p-4 border-b border-gray-100 dark:border-gray-800 flex flex-col items-start justify-center gap-2 transition-colors">
+      <div className="p-4 border-b border-gray-100 dark:border-gray-800 flex flex-col items-start justify-center gap-2 transition-colors flex-shrink-0">
         <div className="flex items-center gap-2">
           <Bot className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
           <h1 className="text-xl font-extrabold tracking-tight text-gray-900 dark:text-white">TalkFlow</h1>
@@ -40,7 +40,7 @@ export default function Sidebar({ onSelectUser, selectedUserId, unreadCounts, me
       </div>
 
       {/* AI Assistant Button */}
-      <div className="p-4 border-b border-gray-100 dark:border-gray-800 transition-colors">
+      <div className="p-4 border-b border-gray-100 dark:border-gray-800 transition-colors flex-shrink-0">
         <button 
           className={`w-full flex items-center justify-center space-x-2 py-2.5 px-4 rounded-lg font-medium transition-colors cursor-pointer ${
             selectedUserId === 'ai' 
@@ -57,10 +57,12 @@ export default function Sidebar({ onSelectUser, selectedUserId, unreadCounts, me
       </div>
 
       {/* Search */}
-      <UserSearch searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+      <div className="flex-shrink-0">
+        <UserSearch searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
+      </div>
 
       {/* Tabs */}
-      <div className="flex px-4 pt-2 border-b border-gray-200 dark:border-gray-800 transition-colors">
+      <div className="flex px-4 pt-2 border-b border-gray-200 dark:border-gray-800 transition-colors flex-shrink-0">
         <button 
           onClick={() => setActiveTab('chats')}
           className={`flex-1 text-sm font-medium pb-2 border-b-2 transition-colors ${
@@ -84,7 +86,7 @@ export default function Sidebar({ onSelectUser, selectedUserId, unreadCounts, me
       </div>
 
       {/* Lists */}
-      <div className="flex-1 overflow-y-auto">
+      <div className="flex-1 min-h-0 overflow-y-auto">
         {activeTab === 'people' ? (
           <UserList 
             users={users} 
@@ -107,7 +109,7 @@ export default function Sidebar({ onSelectUser, selectedUserId, unreadCounts, me
       {/* Footer Current User */}
       {currentUser && (
         <>
-          <div className="p-4 border-t border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-slate-800/50 flex items-center justify-between transition-colors">
+          <div className="p-4 border-t border-gray-200 dark:border-gray-800 bg-white dark:bg-slate-900 flex items-center justify-between transition-colors flex-shrink-0 sticky bottom-0 z-20 shadow-[0_-2px_10px_rgba(0,0,0,0.03)]">
             <div 
               className="flex items-center min-w-0 cursor-pointer group flex-1 mr-2"
               onClick={() => setIsProfileModalOpen(true)}

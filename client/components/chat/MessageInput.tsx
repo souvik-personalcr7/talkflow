@@ -151,7 +151,7 @@ export default function MessageInput({ onSendMessage, disabled = false, conversa
   };
 
   return (
-    <div className="p-4 bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-gray-800">
+    <div className="p-3 md:p-4 bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-gray-800 flex-shrink-0 sticky bottom-0 z-20 w-full shadow-[0_-2px_10px_rgba(0,0,0,0.03)]">
       {(blockStatus?.blockedByMe || blockStatus?.blockedByThem) ? (
         <div className="flex items-center justify-center py-3 bg-gray-50 dark:bg-slate-800/50 rounded-xl border border-gray-100 dark:border-gray-800">
           <p className="text-sm font-medium text-gray-500 dark:text-gray-400">

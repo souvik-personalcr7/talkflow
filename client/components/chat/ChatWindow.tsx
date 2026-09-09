@@ -145,7 +145,7 @@ export default function ChatWindow({
   }
 
   return (
-    <div className="flex-1 flex flex-col bg-white dark:bg-slate-900 h-full border-l border-gray-200 dark:border-gray-800 transition-colors relative">
+    <div className="flex-1 flex flex-col bg-white dark:bg-slate-900 h-full max-h-full min-h-0 border-l border-gray-200 dark:border-gray-800 transition-colors relative overflow-hidden">
       <ChatHeader 
         user={selectedUser} 
         onBack={onBack} 
@@ -165,7 +165,7 @@ export default function ChatWindow({
         onDeleteMessage={onDeleteMessage}
       />
       {isTyping && (
-        <div className="px-6 py-2 text-xs text-gray-500 dark:text-gray-400 italic animate-pulse">
+        <div className="px-6 py-2 text-xs text-gray-500 dark:text-gray-400 italic animate-pulse flex-shrink-0 bg-white dark:bg-slate-900 border-t border-gray-100 dark:border-gray-800/50">
           {selectedUser.name} is typing...
         </div>
       )}

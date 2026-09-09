@@ -62,9 +62,9 @@ export default function AIChatWindow({ onBack }: AIChatWindowProps) {
   };
 
   return (
-    <div className="flex flex-col h-full w-full bg-gray-50 dark:bg-slate-900 border-l border-gray-200 dark:border-gray-800 transition-colors">
+    <div className="flex flex-col h-full max-h-full min-h-0 w-full bg-gray-50 dark:bg-slate-900 border-l border-gray-200 dark:border-gray-800 transition-colors overflow-hidden relative">
       {/* Header */}
-      <div className="h-16 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-slate-900 flex items-center px-4 justify-between sticky top-0 z-10 shadow-sm">
+      <div className="h-16 border-b border-gray-200 dark:border-gray-800 bg-white dark:bg-slate-900 flex items-center px-4 justify-between sticky top-0 z-10 shadow-sm flex-shrink-0">
         <div className="flex items-center">
           <button 
             onClick={onBack}
@@ -92,7 +92,7 @@ export default function AIChatWindow({ onBack }: AIChatWindowProps) {
       <div 
         ref={scrollContainerRef}
         onScroll={handleScroll}
-        className="flex-1 overflow-y-auto p-4 md:p-6 space-y-2 relative"
+        className="flex-1 min-h-0 overflow-y-auto p-4 md:p-6 space-y-2 relative"
       >
         {messages.length === 0 ? (
           <div className="h-full flex flex-col items-center justify-center text-center px-4">
@@ -214,7 +214,7 @@ export default function AIChatWindow({ onBack }: AIChatWindowProps) {
       )}
 
       {/* Input Area */}
-      <div className="p-4 bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-gray-800 shadow-sm z-10 relative">
+      <div className="p-3 md:p-4 bg-white dark:bg-slate-900 border-t border-gray-200 dark:border-gray-800 shadow-[0_-2px_10px_rgba(0,0,0,0.03)] z-20 sticky bottom-0 flex-shrink-0 w-full">
         <div className="flex items-end space-x-2 max-w-4xl mx-auto">
           <div className="flex-1 bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-gray-700 rounded-2xl flex items-center overflow-hidden focus-within:ring-2 focus-within:ring-black dark:focus-within:ring-indigo-500 focus-within:border-transparent transition-all">
             <textarea

@@ -59,19 +59,19 @@ export default function ChatDashboard() {
 
   return (
     <CallProvider>
-      <div className="h-screen w-full flex bg-gray-50 dark:bg-slate-900 overflow-hidden font-sans transition-colors relative">
+      <div className="h-screen h-[100dvh] max-h-screen w-full flex bg-gray-50 dark:bg-slate-900 overflow-hidden font-sans transition-colors relative">
         <CallModal />
         
-        <div className={`w-full md:w-80 h-full flex-shrink-0 ${selectedUser ? 'hidden md:block' : 'block'}`}>
-        <Sidebar 
-          onSelectUser={handleSelectUser} 
-          selectedUserId={selectedUser?.id}
-          unreadCounts={unreadCounts}
-          messagesByConversation={messagesByConversation}
-        />
-      </div>
+        <div className={`w-full md:w-80 h-full max-h-full flex-shrink-0 flex flex-col overflow-hidden ${selectedUser ? 'hidden md:flex' : 'flex'}`}>
+          <Sidebar 
+            onSelectUser={handleSelectUser} 
+            selectedUserId={selectedUser?.id}
+            unreadCounts={unreadCounts}
+            messagesByConversation={messagesByConversation}
+          />
+        </div>
 
-      <div className={`flex-1 h-full min-w-0 ${!selectedUser ? 'hidden md:flex' : 'flex'}`}>
+        <div className={`flex-1 h-full max-h-full min-w-0 min-h-0 flex-col overflow-hidden ${!selectedUser ? 'hidden md:flex' : 'flex'}`}>
         {selectedUser?.id === 'ai' ? (
           <AIChatWindow onBack={handleBack} />
         ) : (
