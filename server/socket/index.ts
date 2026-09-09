@@ -24,7 +24,7 @@ export const initializeSocket = (io: Server) => {
     const userId = user._id.toString();
 
     // 1. Join personal user room
-    console.log(`[SOCKET CONNECT] userId: ${userId}, socketId: ${socket.id}`);
+    // console.log(`[SOCKET CONNECT] userId: ${userId}, socketId: ${socket.id}`); // Hidden to prevent exposing userId and socketId in terminal
     socket.join(`user:${userId}`);
 
     // 2. Track connection
@@ -313,7 +313,7 @@ export const initializeSocket = (io: Server) => {
 
     // 7. Handle disconnect
     socket.on('disconnect', async () => {
-      console.log(`[SOCKET DISCONNECT] userId: ${userId}, socketId: ${socket.id}`);
+      // console.log(`[SOCKET DISCONNECT] userId: ${userId}, socketId: ${socket.id}`); // Hidden to prevent exposing userId and socketId in terminal
       const count = activeConnections.get(userId) || 0;
       
       if (count <= 1) {

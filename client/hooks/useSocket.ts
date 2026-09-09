@@ -24,7 +24,7 @@ export const useSocket = () => {
       };
 
       const onConnectError = (err: Error) => {
-        console.error('Socket connection error:', err.message);
+        console.warn('Socket connection retry:', err.message);
         setIsReconnecting(true);
       };
 

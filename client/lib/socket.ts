@@ -7,10 +7,9 @@ const SOCKET_URL = process.env.NEXT_PUBLIC_SOCKET_URL || 'http://localhost:5000'
 export const socket: Socket = io(SOCKET_URL, {
   autoConnect: false,
   withCredentials: true,
-  transports: ['websocket', 'polling'], // Prioritize direct WebSocket to avoid HTTP long-polling handshake lag
   reconnection: true,
   reconnectionAttempts: Infinity,
   reconnectionDelay: 1000,
   reconnectionDelayMax: 5000,
-  timeout: 15000,
+  timeout: 20000,
 });
