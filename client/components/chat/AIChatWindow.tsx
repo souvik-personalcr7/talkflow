@@ -4,6 +4,7 @@ import ReactMarkdown from 'react-markdown';
 import rehypeSanitize from 'rehype-sanitize';
 import { format } from 'date-fns';
 import { ArrowLeft, Send, Square, RefreshCw, Copy, RotateCcw, Bot } from 'lucide-react';
+import ThemeToggle from '../ui/ThemeToggle';
 
 interface AIChatWindowProps {
   onBack: () => void;
@@ -86,6 +87,7 @@ export default function AIChatWindow({ onBack }: AIChatWindowProps) {
             </div>
           </div>
         </div>
+        <ThemeToggle />
       </div>
 
       {/* Messages Area */}

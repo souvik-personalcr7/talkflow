@@ -13,6 +13,7 @@ import { ConnectionStatus } from '../chat/ConnectionStatus';
 import { Bot } from 'lucide-react';
 import Avatar from '../ui/Avatar';
 import ProfileModal from './ProfileModal';
+import ThemeToggle from '../ui/ThemeToggle';
 
 interface SidebarProps {
   onSelectUser: (user: User) => void;
@@ -32,11 +33,12 @@ export default function Sidebar({ onSelectUser, selectedUserId, unreadCounts, me
   return (
     <div className="w-full md:w-80 h-full max-h-full bg-white dark:bg-slate-900 border-r border-gray-200 dark:border-gray-800 flex flex-col transition-colors overflow-hidden relative">
       {/* Header */}
-      <div className="p-4 border-b border-gray-100 dark:border-gray-800 flex flex-col items-start justify-center gap-2 transition-colors flex-shrink-0">
+      <div className="p-4 border-b border-gray-100 dark:border-gray-800 flex items-center justify-between transition-colors flex-shrink-0">
         <div className="flex items-center gap-2">
           <Bot className="w-6 h-6 text-indigo-600 dark:text-indigo-400" />
           <h1 className="text-xl font-extrabold tracking-tight text-gray-900 dark:text-white">TalkFlow</h1>
         </div>
+        <ThemeToggle />
       </div>
 
       {/* AI Assistant Button */}

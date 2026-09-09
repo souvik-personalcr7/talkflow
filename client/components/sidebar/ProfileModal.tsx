@@ -4,8 +4,9 @@ import Avatar from '../ui/Avatar';
 import { useAuth } from '@/hooks/useAuth';
 import api from '@/lib/api';
 import { useToast } from '@/contexts/ToastContext';
-import { X, Upload, Trash2 } from 'lucide-react';
+import { X, Upload, Trash2, Sun, Moon } from 'lucide-react';
 import { socket } from '@/lib/socket';
+import { useTheme } from '@/context/ThemeContext';
 
 interface ProfileModalProps {
   isOpen: boolean;
@@ -21,6 +22,7 @@ export default function ProfileModal({ isOpen, onClose, user }: ProfileModalProp
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { user: currentUser, refreshUser } = useAuth();
   const { showToast } = useToast();
+  const { theme, setTheme } = useTheme();
 
   if (!isOpen) return null;
 
@@ -149,7 +151,7 @@ export default function ProfileModal({ isOpen, onClose, user }: ProfileModalProp
           {!previewUrl && (
             <>
               <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">{user.name}</h3>
-              <p className="text-gray-500 dark:text-gray-400 mb-6">@{user.username}</p>
+              <p className="text-gray-500 dark:text-gray-400 mb-4">@{user.username}</p>
             </>
           )}
 
@@ -211,6 +213,37 @@ export default function ProfileModal({ isOpen, onClose, user }: ProfileModalProp
               )}
             </div>
           )}
+
+          {/* Appearance / Theme Mode */}
+          <div className="w-full mt-5 pt-4 border-t border-gray-100 dark:border-gray-800">
+            <span className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2.5">Appearance</span>
+            <div className="grid grid-cols-2 gap-2 bg-gray-100 dark:bg-slate-800 p-1 rounded-xl">
+              <button
+                type="button"
+                onClick={() => setTheme('light')}
+                className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                  theme === 'light'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                }`}
+              >
+                <Sun size={15} className={theme === 'light' ? 'text-amber-500' : ''} />
+                Day Mode
+              </button>
+              <button
+                type="button"
+                onClick={() => setTheme('dark')}
+                className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
+                  theme === 'dark'
+                    ? 'bg-slate-700 text-white shadow-sm'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                }`}
+              >
+                <Moon size={15} className={theme === 'dark' ? 'text-indigo-400' : ''} />
+                Dark Mode
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
