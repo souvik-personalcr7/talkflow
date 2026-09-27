@@ -18,27 +18,8 @@ interface AuthContextType {
 export const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  // Optimistically restore cached user from localStorage to render immediately (0ms wait)
-  const [user, setUser] = useState<User | null>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const cached = localStorage.getItem('talkflow_user');
-        if (cached) return JSON.parse(cached);
-      } catch (_) {}
-    }
-    return null;
-  });
-
-  // If user was cached, don't block the screen with a full-screen loading spinner
-  const [loading, setLoading] = useState<boolean>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const cached = localStorage.getItem('talkflow_user');
-        if (cached) return false;
-      } catch (_) {}
-    }
-    return true;
-  });
+  const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
 
   const router = useRouter();
   const pathname = usePathname();
@@ -75,8 +56,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
-    // If cached user exists, validate in background without blocking screen!
-    const hasCachedUser = typeof window !== 'undefined' && !!localStorage.getItem('talkflow_user');
+    // If cached user exists, restore it immediately on client mount and validate in background
+    let hasCachedUser = false;
+    if (typeof window !== 'undefined') {
+      try {
+        const cached = localStorage.getItem('talkflow_user');
+        if (cached) {
+          const parsedUser = JSON.parse(cached);
+          setUser(parsedUser);
+          setLoading(false);
+          hasCachedUser = true;
+        }
+      } catch (_) {}
+    }
     refreshUser(hasCachedUser);
 
     const handleUnauthorized = () => {

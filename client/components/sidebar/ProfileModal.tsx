@@ -120,49 +120,67 @@ export default function ProfileModal({ isOpen, onClose, user }: ProfileModalProp
   };
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 dark:bg-opacity-70 flex items-center justify-center z-50 p-4 transition-colors">
-      <div className="bg-white dark:bg-slate-900 rounded-xl shadow-xl w-full max-w-sm overflow-hidden flex flex-col animate-in fade-in zoom-in duration-200 border border-transparent dark:border-gray-800 transition-colors">
+    <div className="fixed inset-0 bg-slate-900/60 backdrop-blur-sm flex items-center justify-center z-50 p-4 transition-all animate-in fade-in duration-200">
+      <div className="bg-white dark:bg-slate-900 rounded-2xl shadow-2xl w-full max-w-sm overflow-hidden flex flex-col border border-slate-200/80 dark:border-slate-800 transition-all scale-100">
         
-        <div className="flex justify-between items-center p-4 border-b border-gray-100 dark:border-gray-800 transition-colors">
-          <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">{isCurrentUser ? 'Your Profile' : 'User Profile'}</h2>
-          <button onClick={handleClose} disabled={isUploading || isDeleting} className="p-1 text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 rounded-full hover:bg-gray-100 dark:hover:bg-slate-800 disabled:opacity-50 transition-colors">
-            <X size={20} />
+        {/* Modal Header */}
+        <div className="flex justify-between items-center px-5 py-4 border-b border-slate-100 dark:border-slate-800">
+          <div>
+            <h2 className="text-base font-bold text-slate-900 dark:text-white">
+              {isCurrentUser ? 'Your Profile' : 'User Profile'}
+            </h2>
+            <p className="text-xs text-slate-500 dark:text-slate-400">
+              {isCurrentUser ? 'Manage account details & photo' : 'Contact information'}
+            </p>
+          </div>
+          <button 
+            onClick={handleClose} 
+            disabled={isUploading || isDeleting} 
+            className="p-1.5 text-slate-400 hover:text-slate-700 dark:hover:text-slate-200 rounded-lg hover:bg-slate-100 dark:hover:bg-slate-800 disabled:opacity-50 transition-colors"
+            aria-label="Close profile modal"
+          >
+            <X size={18} />
           </button>
         </div>
 
+        {/* Modal Body */}
         <div className="p-6 flex flex-col items-center">
-          <div className="relative mb-6">
-            <Avatar 
-              user={user} 
-              size="xl" 
-              className={`border-4 border-white dark:border-slate-800 shadow-md transition-colors ${isCurrentUser ? 'cursor-pointer' : ''}`} 
-              editable={isCurrentUser && !previewUrl}
-              onEdit={() => isCurrentUser && fileInputRef.current?.click()}
-              previewImage={previewUrl}
-            />
+          <div className="relative mb-5">
+            <div className="p-1 rounded-full bg-slate-100 dark:bg-slate-800 ring-4 ring-indigo-50 dark:ring-indigo-950/40">
+              <Avatar 
+                user={user} 
+                size="xl" 
+                className={`shadow-sm transition-colors ${isCurrentUser ? 'cursor-pointer hover:opacity-90' : ''}`} 
+                editable={isCurrentUser && !previewUrl}
+                onEdit={() => isCurrentUser && fileInputRef.current?.click()}
+                previewImage={previewUrl}
+              />
+            </div>
             
             {(isUploading || isDeleting) && (
-              <div className="absolute inset-0 bg-white/70 dark:bg-slate-900/70 rounded-full flex items-center justify-center transition-colors">
-                <div className="w-8 h-8 border-4 border-gray-200 dark:border-slate-700 border-t-indigo-600 dark:border-t-indigo-500 rounded-full animate-spin"></div>
+              <div className="absolute inset-0 bg-white/80 dark:bg-slate-900/80 rounded-full flex items-center justify-center transition-colors">
+                <div className="w-8 h-8 border-3 border-indigo-200 dark:border-indigo-900 border-t-indigo-600 rounded-full animate-spin"></div>
               </div>
             )}
           </div>
 
           {!previewUrl && (
-            <>
-              <h3 className="text-xl font-bold text-gray-900 dark:text-gray-100">{user.name}</h3>
-              <p className="text-gray-500 dark:text-gray-400 mb-4">@{user.username}</p>
-            </>
+            <div className="text-center mb-5">
+              <h3 className="text-lg font-bold text-slate-900 dark:text-white">{user.name}</h3>
+              <p className="text-xs font-medium text-slate-500 dark:text-slate-400 mt-0.5">@{user.username}</p>
+            </div>
           )}
 
           {previewUrl && isCurrentUser && (
             <div className="mb-4 text-center">
-              <span className="inline-block bg-indigo-100 dark:bg-indigo-900/40 text-indigo-700 dark:text-indigo-300 text-xs font-semibold px-2 py-1 rounded transition-colors">PREVIEW</span>
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-indigo-50 text-indigo-700 dark:bg-indigo-950/60 dark:text-indigo-300 border border-indigo-200/60 dark:border-indigo-800/60">
+                New Photo Selected
+              </span>
             </div>
           )}
 
           {isCurrentUser && (
-            <div className="w-full space-y-3">
+            <div className="w-full space-y-2.5">
               <input 
                 type="file" 
                 ref={fileInputRef}
@@ -176,16 +194,16 @@ export default function ProfileModal({ isOpen, onClose, user }: ProfileModalProp
                   <button 
                     onClick={resetState}
                     disabled={isUploading}
-                    className="flex-1 bg-white dark:bg-slate-800 border border-gray-300 dark:border-gray-700 hover:bg-gray-50 dark:hover:bg-slate-700 text-gray-700 dark:text-gray-300 py-2.5 px-4 rounded-lg font-medium transition-colors disabled:opacity-70"
+                    className="flex-1 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/80 text-slate-700 dark:text-slate-300 py-2.5 px-4 rounded-xl text-xs font-semibold transition-all disabled:opacity-70 shadow-sm cursor-pointer"
                   >
                     Cancel
                   </button>
                   <button 
                     onClick={handleSavePhoto}
                     disabled={isUploading}
-                    className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white py-2.5 px-4 rounded-lg font-medium transition-colors disabled:opacity-70"
+                    className="flex-1 bg-indigo-600 hover:bg-indigo-500 text-white py-2.5 px-4 rounded-xl text-xs font-semibold transition-all disabled:opacity-70 shadow-sm shadow-indigo-500/20 cursor-pointer"
                   >
-                    Save Photo
+                    {isUploading ? 'Saving...' : 'Save Photo'}
                   </button>
                 </div>
               ) : (
@@ -193,20 +211,20 @@ export default function ProfileModal({ isOpen, onClose, user }: ProfileModalProp
                   <button 
                     onClick={() => fileInputRef.current?.click()}
                     disabled={isUploading || isDeleting}
-                    className="w-full flex items-center justify-center space-x-2 bg-indigo-50 dark:bg-slate-800 hover:bg-indigo-100 dark:hover:bg-slate-700 text-indigo-700 dark:text-indigo-400 py-2.5 px-4 rounded-lg font-medium transition-colors disabled:opacity-70"
+                    className="w-full flex items-center justify-center space-x-2 bg-indigo-50 dark:bg-slate-800 hover:bg-indigo-100/80 dark:hover:bg-slate-700 text-indigo-700 dark:text-indigo-400 py-2.5 px-4 rounded-xl text-xs font-semibold transition-all disabled:opacity-70 border border-indigo-100 dark:border-slate-700 cursor-pointer"
                   >
-                    <Upload size={18} />
-                    <span>Change Photo</span>
+                    <Upload size={15} />
+                    <span>Upload New Photo</span>
                   </button>
 
                   {user.profileImage && (
                     <button 
                       onClick={handleRemovePhoto}
                       disabled={isUploading || isDeleting}
-                      className="w-full flex items-center justify-center space-x-2 bg-white dark:bg-transparent border border-gray-200 dark:border-gray-700 hover:bg-red-50 dark:hover:bg-red-900/20 hover:text-red-600 dark:hover:text-red-400 hover:border-red-200 dark:hover:border-red-800 text-gray-700 dark:text-gray-300 py-2.5 px-4 rounded-lg font-medium transition-colors disabled:opacity-70"
+                      className="w-full flex items-center justify-center space-x-2 bg-white dark:bg-transparent border border-slate-200 dark:border-slate-800 hover:bg-rose-50 dark:hover:bg-rose-950/30 hover:text-rose-600 dark:hover:text-rose-400 hover:border-rose-200 dark:hover:border-rose-900 text-slate-600 dark:text-slate-400 py-2.5 px-4 rounded-xl text-xs font-semibold transition-all disabled:opacity-70 cursor-pointer"
                     >
-                      <Trash2 size={18} />
-                      <span>Remove Photo</span>
+                      <Trash2 size={15} />
+                      <span>{isDeleting ? 'Removing...' : 'Remove Photo'}</span>
                     </button>
                   )}
                 </>
@@ -215,31 +233,33 @@ export default function ProfileModal({ isOpen, onClose, user }: ProfileModalProp
           )}
 
           {/* Appearance / Theme Mode */}
-          <div className="w-full mt-5 pt-4 border-t border-gray-100 dark:border-gray-800">
-            <span className="block text-xs font-semibold text-gray-500 dark:text-gray-400 uppercase tracking-wider mb-2.5">Appearance</span>
-            <div className="grid grid-cols-2 gap-2 bg-gray-100 dark:bg-slate-800 p-1 rounded-xl">
+          <div className="w-full mt-6 pt-4 border-t border-slate-100 dark:border-slate-800">
+            <span className="block text-[11px] font-bold text-slate-400 dark:text-slate-400 uppercase tracking-wider mb-2">
+              Appearance
+            </span>
+            <div className="grid grid-cols-2 gap-1.5 bg-slate-100 dark:bg-slate-800/80 p-1 rounded-xl border border-slate-200/50 dark:border-slate-700/50">
               <button
                 type="button"
                 onClick={() => setTheme('light')}
                 className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                   theme === 'light'
-                    ? 'bg-white text-gray-900 shadow-sm'
-                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                    ? 'bg-white text-slate-900 shadow-sm border border-slate-200/60'
+                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
-                <Sun size={15} className={theme === 'light' ? 'text-amber-500' : ''} />
-                Day Mode
+                <Sun size={14} className={theme === 'light' ? 'text-amber-500' : ''} />
+                Light Mode
               </button>
               <button
                 type="button"
                 onClick={() => setTheme('dark')}
                 className={`flex items-center justify-center gap-2 py-2 px-3 rounded-lg text-xs font-semibold transition-all cursor-pointer ${
                   theme === 'dark'
-                    ? 'bg-slate-700 text-white shadow-sm'
-                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
+                    ? 'bg-slate-700 text-white shadow-sm border border-slate-600'
+                    : 'text-slate-500 dark:text-slate-400 hover:text-slate-900 dark:hover:text-white'
                 }`}
               >
-                <Moon size={15} className={theme === 'dark' ? 'text-indigo-400' : ''} />
+                <Moon size={14} className={theme === 'dark' ? 'text-indigo-400' : ''} />
                 Dark Mode
               </button>
             </div>

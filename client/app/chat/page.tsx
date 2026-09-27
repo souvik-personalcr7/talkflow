@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
-import { redirect } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import Sidebar from '@/components/sidebar/Sidebar';
 import ChatWindow from '@/components/chat/ChatWindow';
 import AIChatWindow from '@/components/chat/AIChatWindow';
@@ -15,6 +15,7 @@ import CallModal from '@/components/calls/CallModal';
 
 export default function ChatDashboard() {
   const { user, loading } = useAuth();
+  const router = useRouter();
   const [selectedUser, setSelectedUser] = useState<User | null>(null);
   const [activeConversation, setActiveConversation] = useState<Conversation | null>(null);
   
@@ -24,6 +25,12 @@ export default function ChatDashboard() {
   
   // Initialize socket connection
   useSocket();
+
+  useEffect(() => {
+    if (!loading && !user) {
+      router.replace('/login');
+    }
+  }, [loading, user, router]);
 
   const handleSelectUser = async (u: User) => {
     setSelectedUser(u);
@@ -45,26 +52,22 @@ export default function ChatDashboard() {
     setActiveConversation(null);
   };
 
-  if (loading) {
+  if (loading || !user) {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-center bg-gray-50 dark:bg-slate-900 text-gray-900 dark:text-gray-100 transition-colors p-4">
-        <div className="w-10 h-10 border-3 border-indigo-200 dark:border-indigo-900/50 border-t-indigo-600 dark:border-t-indigo-400 rounded-full animate-spin mb-4" />
-        <h2 className="text-xl font-bold text-gray-800 dark:text-gray-200 tracking-tight">TalkFlow</h2>
-        <p className="text-xs text-gray-500 dark:text-gray-400 mt-2">Connecting to server...</p>
+      <div className="min-h-screen flex flex-col items-center justify-center bg-slate-50 dark:bg-slate-950 text-slate-900 dark:text-slate-100 transition-colors p-4">
+        <div className="w-10 h-10 border-3 border-indigo-200 dark:border-indigo-900/60 border-t-indigo-600 dark:border-t-indigo-500 rounded-full animate-spin mb-4" />
+        <h2 className="text-xl font-bold text-slate-900 dark:text-white tracking-tight">TalkFlow</h2>
+        <p className="text-xs text-slate-500 dark:text-slate-400 mt-1.5 font-medium">Connecting to workspace...</p>
       </div>
     );
   }
 
-  if (!user) {
-    redirect('/login');
-  }
-
   return (
     <CallProvider>
-      <div className="h-screen h-[100dvh] max-h-screen w-full flex bg-gray-50 dark:bg-slate-900 overflow-hidden font-sans transition-colors relative">
+      <div className="h-screen h-[100dvh] max-h-screen w-full flex bg-slate-50 dark:bg-slate-950 overflow-hidden font-sans transition-colors relative">
         <CallModal />
         
-        <div className={`w-full md:w-80 h-full max-h-full flex-shrink-0 flex flex-col overflow-hidden ${selectedUser ? 'hidden md:flex' : 'flex'}`}>
+        <div className={`w-full md:w-80 lg:w-88 xl:w-96 h-full max-h-full flex-shrink-0 flex flex-col overflow-hidden border-r border-slate-200/80 dark:border-slate-800 ${selectedUser ? 'hidden md:flex' : 'flex'}`}>
           <Sidebar 
             onSelectUser={handleSelectUser} 
             selectedUserId={selectedUser?.id}

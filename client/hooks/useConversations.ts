@@ -4,24 +4,11 @@ import { Conversation, User } from '../types';
 import { socket } from '../lib/socket';
 
 export const useConversations = () => {
-  // Optimistically restore cached conversations to render immediately
-  const [conversations, setConversations] = useState<Conversation[]>(() => {
-    if (typeof window !== 'undefined') {
-      try {
-        const cached = localStorage.getItem('talkflow_cached_conversations');
-        if (cached) return JSON.parse(cached);
-      } catch (_) {}
-    }
-    return [];
-  });
+  const [conversations, setConversations] = useState<Conversation[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   const fetchConversations = useCallback(async () => {
-    // Only show loading indicator if we don't have any cached conversations
-    if (conversations.length === 0) {
-      setLoading(true);
-    }
     setError(null);
     try {
       const res = await api.get('/conversations');
@@ -39,7 +26,7 @@ export const useConversations = () => {
     } finally {
       setLoading(false);
     }
-  }, [conversations.length]);
+  }, []);
 
   const createOrGetConversation = async (receiverId: string): Promise<Conversation | null> => {
     setLoading(true);
@@ -64,6 +51,19 @@ export const useConversations = () => {
   };
 
   useEffect(() => {
+    try {
+      if (typeof window !== 'undefined') {
+        const cached = localStorage.getItem('talkflow_cached_conversations');
+        if (cached) {
+          setConversations(JSON.parse(cached));
+        } else {
+          setLoading(true);
+        }
+      }
+    } catch (_) {
+      setLoading(true);
+    }
+
     fetchConversations();
 
     const handleProfileUpdate = (payload: { userId: string; profileImage: string }) => {

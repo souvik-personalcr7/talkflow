@@ -38,10 +38,10 @@ export default function MessageBubble({
 
   // Colors:
   const colorClasses = isOwnMessage 
-    ? 'bg-[#d9fdd3] dark:bg-emerald-700 text-gray-800 dark:text-emerald-50 border border-green-200 dark:border-emerald-900' 
-    : 'bg-white dark:bg-slate-800 text-gray-800 dark:text-gray-100 border border-gray-200 dark:border-slate-700 shadow-sm';
+    ? 'bg-indigo-600 text-white shadow-xs border border-indigo-700/30' 
+    : 'bg-slate-100 dark:bg-slate-800 text-slate-900 dark:text-slate-100 border border-slate-200/60 dark:border-slate-700/60 shadow-xs';
 
-  const timeColor = isOwnMessage ? 'text-gray-500 dark:text-emerald-200' : 'text-gray-400 dark:text-gray-500';
+  const timeColor = isOwnMessage ? 'text-indigo-200/90' : 'text-slate-400 dark:text-slate-500';
   
   const isImage = message.messageType === 'image' && message.imageUrl;
   const isFile = message.messageType === 'file' && message.attachment;
@@ -144,50 +144,54 @@ export default function MessageBubble({
               href={message.attachment?.url}
               target="_blank"
               rel="noopener noreferrer"
-              className={`flex items-center p-3 rounded-xl mb-1 ${isOwnMessage ? 'bg-[#c3f2bc] dark:bg-emerald-800/80 hover:bg-[#b0eaa8] dark:hover:bg-emerald-800' : 'bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 dark:hover:bg-slate-600'} transition-colors group`}
+              className={`flex items-center p-2.5 rounded-xl mb-1 ${
+                isOwnMessage 
+                  ? 'bg-indigo-700/60 hover:bg-indigo-700/80 text-white border border-indigo-500/40' 
+                  : 'bg-white/80 dark:bg-slate-700/80 hover:bg-white dark:hover:bg-slate-700 text-slate-900 dark:text-slate-100 border border-slate-200 dark:border-slate-600'
+              } transition-colors group/file`}
             >
-              <div className={`p-2 rounded-lg ${isOwnMessage ? 'bg-emerald-600 text-white' : 'bg-gray-200 dark:bg-slate-600 text-gray-500 dark:text-gray-300'}`}>
-                <FileIcon size={24} />
+              <div className={`p-2 rounded-lg ${isOwnMessage ? 'bg-indigo-500 text-white' : 'bg-indigo-100 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400'}`}>
+                <FileIcon size={20} />
               </div>
-              <div className="ml-3 flex-1 overflow-hidden pr-2">
-                <p className="text-sm font-semibold truncate text-gray-900 dark:text-gray-100">{message.attachment?.name}</p>
-                <p className="text-xs mt-0.5 opacity-70">
-                  {message.attachment?.size ? `${(message.attachment.size / 1024).toFixed(1)} KB` : 'Unknown size'} • {message.attachment?.mimeType?.split('/')[1]?.toUpperCase() || 'FILE'}
+              <div className="ml-2.5 flex-1 overflow-hidden pr-2">
+                <p className="text-xs font-semibold truncate">{message.attachment?.name}</p>
+                <p className="text-[11px] mt-0.5 opacity-75">
+                  {message.attachment?.size ? `${(message.attachment.size / 1024).toFixed(1)} KB` : 'File'} • {message.attachment?.mimeType?.split('/')[1]?.toUpperCase() || 'DOCUMENT'}
                 </p>
               </div>
-              <Download size={18} className="opacity-0 group-hover:opacity-100 transition-opacity text-gray-500 dark:text-gray-400" />
+              <Download size={16} className="opacity-60 group-hover/file:opacity-100 transition-opacity" />
             </a>
             {message.text && !['📷 Image', '📷 Photo', '📄 File', '👤 Contact'].includes(message.text) && (
-              <p className="text-[15px] leading-relaxed break-words whitespace-pre-wrap">{message.text}</p>
+              <p className="text-[14px] leading-relaxed break-words whitespace-pre-wrap">{message.text}</p>
             )}
           </div>
         ) : isContact ? (
           <div className="flex flex-col min-w-[200px]">
-            <div className="flex items-center p-3 border-b border-gray-200 dark:border-gray-700/50 mb-1">
+            <div className="flex items-center p-2.5 border-b border-black/10 dark:border-white/10 mb-1">
               {message.contact?.profilePicture ? (
-                <img src={message.contact.profilePicture} alt={message.contact.name} className="w-10 h-10 rounded-full object-cover" />
+                <img src={message.contact.profilePicture} alt={message.contact.name} className="w-9 h-9 rounded-full object-cover" />
               ) : (
-                <div className="w-10 h-10 rounded-full bg-gray-200 dark:bg-gray-700 flex items-center justify-center text-gray-500 dark:text-gray-400">
-                  <UserIcon size={20} />
+                <div className="w-9 h-9 rounded-full bg-indigo-100 dark:bg-indigo-950/60 text-indigo-600 dark:text-indigo-400 flex items-center justify-center font-bold text-xs">
+                  <UserIcon size={18} />
                 </div>
               )}
-              <div className="ml-3 flex-1 overflow-hidden">
-                <p className="text-sm font-semibold text-gray-900 dark:text-gray-100 truncate">{message.contact?.name}</p>
-                <p className="text-xs opacity-70 mt-0.5">Contact</p>
+              <div className="ml-2.5 flex-1 overflow-hidden">
+                <p className="text-xs font-semibold truncate">{message.contact?.name}</p>
+                <p className="text-[11px] opacity-75 mt-0.5">Contact Card</p>
               </div>
             </div>
             {message.text && !['📷 Image', '📷 Photo', '📄 File', '👤 Contact'].includes(message.text) && (
-              <p className="text-[15px] leading-relaxed break-words whitespace-pre-wrap mt-1">{message.text}</p>
+              <p className="text-[14px] leading-relaxed break-words whitespace-pre-wrap mt-1">{message.text}</p>
             )}
           </div>
         ) : (
-          <p className="text-[15px] leading-relaxed break-words whitespace-pre-wrap">{message.text}</p>
+          <p className="text-[14px] leading-relaxed break-words whitespace-pre-wrap">{message.text}</p>
         )}
         
-        <div className={`text-[10px] mt-1 self-end flex items-center space-x-1 font-medium select-none ${isImage && !message.text ? 'absolute bottom-2 right-2 bg-black/40 text-white px-1.5 py-0.5 rounded-full backdrop-blur-sm shadow-sm' : timeColor}`}>
+        <div className={`text-[10px] mt-1 self-end flex items-center space-x-1 font-medium select-none ${isImage && !message.text ? 'absolute bottom-2 right-2 bg-black/50 text-white px-2 py-0.5 rounded-full backdrop-blur-sm shadow-xs' : timeColor}`}>
           <span>{format(new Date(message.createdAt), 'h:mm a')}</span>
           {isOwnMessage && (
-            <span className={`ml-1 ${isImage && !message.text ? 'text-white' : 'text-emerald-600 dark:text-emerald-400'}`}>✓✓</span>
+            <span className={`ml-1 ${isImage && !message.text ? 'text-white' : 'text-indigo-200'}`}>✓✓</span>
           )}
         </div>
 
