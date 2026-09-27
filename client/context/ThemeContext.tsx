@@ -1,6 +1,7 @@
 'use client';
 
 import React, { createContext, useContext, useEffect, useState } from 'react';
+import { useServerInsertedHTML } from 'next/navigation';
 
 type Theme = 'light' | 'dark';
 
@@ -14,6 +15,25 @@ const ThemeContext = createContext<ThemeContextType | undefined>(undefined);
 
 export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [theme, setThemeState] = useState<Theme>('light');
+
+  useServerInsertedHTML(() => {
+    return (
+      <script
+        id="talkflow-theme-init"
+        dangerouslySetInnerHTML={{
+          __html: `
+            try {
+              if (localStorage.getItem('talkflow-theme') === 'dark' || (!('talkflow-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+              } else {
+                document.documentElement.classList.remove('dark');
+              }
+            } catch (_) {}
+          `,
+        }}
+      />
+    );
+  });
 
   useEffect(() => {
     // Check localStorage first, then system preference
