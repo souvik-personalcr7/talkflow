@@ -258,7 +258,7 @@ export default function AIChatWindow({ onBack }: AIChatWindowProps) {
       )}
 
       {/* Input Area */}
-      <div className="p-2 sm:p-3 md:p-4 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm border-t border-slate-200/80 dark:border-slate-800 shadow-sm z-20 flex-shrink-0 w-full">
+      <div className="sticky bottom-0 p-2 sm:p-3 md:p-4 pb-[max(0.5rem,env(safe-area-inset-bottom))] sm:pb-3 md:pb-4 bg-white/95 dark:bg-slate-900/95 backdrop-blur-sm border-t border-slate-200/80 dark:border-slate-800 shadow-sm z-20 flex-shrink-0 w-full">
         <div className="flex items-end space-x-1.5 sm:space-x-2 max-w-4xl mx-auto w-full min-w-0">
           <div className="flex-1 min-w-0 bg-slate-50 dark:bg-slate-800/80 border border-slate-200 dark:border-slate-700 rounded-2xl flex items-center overflow-hidden focus-within:ring-2 focus-within:ring-indigo-500 focus-within:border-transparent transition-all">
             <textarea

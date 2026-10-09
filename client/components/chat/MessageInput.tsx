@@ -183,7 +183,7 @@ export default function MessageInput({ onSendMessage, disabled = false, conversa
   };
 
   return (
-    <div className="p-2 sm:p-3 md:p-4 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200/80 dark:border-slate-800 flex-shrink-0 z-20 w-full">
+    <div className="sticky bottom-0 p-2 sm:p-3 md:p-4 pb-[max(0.5rem,env(safe-area-inset-bottom))] sm:pb-3 md:pb-4 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md border-t border-slate-200/80 dark:border-slate-800 flex-shrink-0 z-20 w-full">
       {(blockStatus?.blockedByMe || blockStatus?.blockedByThem) ? (
         <div className="flex items-center justify-center py-3 bg-slate-50 dark:bg-slate-800/50 rounded-xl border border-slate-100 dark:border-slate-800">
           <p className="text-xs font-semibold text-slate-500 dark:text-slate-400">
