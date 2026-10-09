@@ -46,6 +46,39 @@ const executeWithRetry = async <T>(
   }
 };
 
+export const sanitizeHistory = (context: { role: string; content: string }[]) => {
+  const validHistory: { role: 'user' | 'model'; parts: { text: string }[] }[] = [];
+
+  for (const msg of context) {
+    if (!msg.content || typeof msg.content !== 'string' || !msg.content.trim()) {
+      continue;
+    }
+    const role: 'user' | 'model' = msg.role === 'user' ? 'user' : 'model';
+
+    // Gemini API requires first turn to be 'user'
+    if (validHistory.length === 0 && role !== 'user') {
+      continue;
+    }
+
+    // Gemini API requires alternating turns; merge if consecutive same roles
+    if (validHistory.length > 0 && validHistory[validHistory.length - 1].role === role) {
+      validHistory[validHistory.length - 1].parts[0].text += `\n\n${msg.content.trim()}`;
+    } else {
+      validHistory.push({
+        role,
+        parts: [{ text: msg.content.trim() }],
+      });
+    }
+  }
+
+  // Gemini API requires the last history message to be 'model' so that chat.sendMessage(userPrompt) is the next 'user' turn
+  if (validHistory.length > 0 && validHistory[validHistory.length - 1].role === 'user') {
+    validHistory.pop();
+  }
+
+  return validHistory;
+};
+
 export const generateAIResponse = async (message: string, context: {role: string, content: string}[] = []): Promise<string> => {
   const model = getModel();
   if (!model) {
@@ -53,12 +86,7 @@ export const generateAIResponse = async (message: string, context: {role: string
   }
 
   const modelName = process.env.GEMINI_MODEL || "gemini-3.6-flash";
-  console.log(`[AI SERVICE] Non-streaming request | Model: ${modelName} | API Key configured: ${!!process.env.GEMINI_API_KEY}`);
-
-  const history = context.map(msg => ({
-    role: msg.role === 'user' ? 'user' : 'model',
-    parts: [{ text: msg.content }]
-  }));
+  const history = sanitizeHistory(context);
 
   const chat = model.startChat({
     history: history,
@@ -80,12 +108,7 @@ export const generateAIResponseStream = async (message: string, context: {role: 
   }
 
   const modelName = process.env.GEMINI_MODEL || "gemini-3.6-flash";
-  console.log(`[AI STREAM] Streaming request | Model: ${modelName} | API Key configured: ${!!process.env.GEMINI_API_KEY}`);
-
-  const history = context.map(msg => ({
-    role: msg.role === 'user' ? 'user' : 'model',
-    parts: [{ text: msg.content }]
-  }));
+  const history = sanitizeHistory(context);
 
   const chat = model.startChat({
     history: history,
@@ -93,7 +116,7 @@ export const generateAIResponseStream = async (message: string, context: {role: 
 
   try {
     const result = await executeWithRetry(() => chat.sendMessageStream(message), modelName);
-    return result.stream;
+    return { stream: result.stream, modelName };
   } catch (error: any) {
     console.error("Gemini API Streaming Error:", error?.message || error);
     throw error;

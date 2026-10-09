@@ -71,6 +71,7 @@ const handleGeminiError = (error: any, res: Response) => {
 };
 
 export const handleAIChatStream = async (req: Request, res: Response): Promise<void> => {
+  const requestStartTime = Date.now();
   try {
     const { message, context } = req.body as AIChatRequest;
 
@@ -84,24 +85,52 @@ export const handleAIChatStream = async (req: Request, res: Response): Promise<v
       return;
     }
 
-    console.log(`[AI STREAM] Model requested, key configured: ${!!process.env.GEMINI_API_KEY}`);
-    const stream = await generateAIResponseStream(message, context || []);
+    const geminiStartTime = Date.now();
+    const { stream, modelName } = await generateAIResponseStream(message, context || []);
 
+    // Prevent reverse proxy (Render Nginx, Cloudflare) buffering and compression stalls
     res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+    res.setHeader('Transfer-Encoding', 'chunked');
+    res.setHeader('Cache-Control', 'no-cache, no-transform');
     res.setHeader('Connection', 'keep-alive');
+    res.setHeader('X-Accel-Buffering', 'no');
     res.flushHeaders();
 
+    let firstTokenTime: number | null = null;
+    let chunkCount = 0;
+    let totalBytes = 0;
+
     req.on('close', () => {
-      console.log('Client disconnected during stream.');
-      res.end();
+      if (!res.writableEnded) {
+        res.end();
+      }
     });
 
     for await (const chunk of stream) {
       if (res.writableEnded) break;
-      res.write(chunk.text());
+      const text = chunk.text();
+      if (text) {
+        if (firstTokenTime === null) {
+          firstTokenTime = Date.now() - geminiStartTime;
+        }
+        chunkCount++;
+        totalBytes += Buffer.byteLength(text, 'utf-8');
+        res.write(text);
+        if (typeof (res as any).flush === 'function') {
+          (res as any).flush();
+        }
+      }
     }
 
-    console.log('Stream finished.');
+    const geminiDuration = Date.now() - geminiStartTime;
+    const totalDuration = Date.now() - requestStartTime;
+
+    console.log(
+      `[AI TIMING] Model: ${modelName} | Context items: ${context?.length || 0} | ` +
+      `TTFT: ${firstTokenTime ?? 0}ms | Gemini duration: ${geminiDuration}ms | ` +
+      `Total duration: ${totalDuration}ms | Chunks: ${chunkCount} | Bytes: ${totalBytes}`
+    );
+
     res.end();
 
   } catch (error: any) {

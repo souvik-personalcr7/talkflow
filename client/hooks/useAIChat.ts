@@ -28,6 +28,12 @@ export const useAIChat = () => {
     return cleanup;
   }, [cleanup]);
 
+  useEffect(() => {
+    // Non-blocking background health ping to pre-warm Render if dormant
+    const apiUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api';
+    fetch(`${apiUrl}/health`, { method: 'GET' }).catch(() => {});
+  }, []);
+
   const sendPrompt = useCallback(async (text: string, isRetry = false) => {
     if (!text.trim() || (requestState === 'sending' || requestState === 'streaming')) return;
 
@@ -62,10 +68,10 @@ export const useAIChat = () => {
     abortControllerRef.current = new AbortController();
 
     try {
-      // Build context: remove current AI msg and the user msg we just added (if not retry) to get history.
-      const msgsToSlice = setMessages.length > 20 ? 20 : setMessages.length;
-      // We need the messages array up to the user's new message.
-      const historyMsgs = isRetry ? messages : messages.slice(-19); // approx latest
+      // Build clean history context: only successful non-empty messages, capped at 10 items for low latency
+      const historyMsgs = messages
+        .filter(m => m.status !== 'error' && m.status !== 'aborted' && m.content.trim() !== '')
+        .slice(-10);
       const context = historyMsgs.map(m => ({ role: m.role, content: m.content }));
 
       const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:5000/api'}/ai/chat/stream`, {
@@ -76,7 +82,7 @@ export const useAIChat = () => {
         credentials: 'include',
         body: JSON.stringify({
           message: text,
-          context: context.filter(m => m.content.trim() !== ''),
+          context: context,
         }),
         signal: abortControllerRef.current.signal,
       });
@@ -102,14 +108,14 @@ export const useAIChat = () => {
             break;
           }
           const chunk = decoder.decode(value, { stream: true });
-          console.log('Received chunk:', chunk);
-          
-          setMessages(prev => prev.map(msg => {
-            if (msg.id === aiMsgId) {
-              return { ...msg, content: msg.content + chunk };
-            }
-            return msg;
-          }));
+          if (chunk) {
+            setMessages(prev => prev.map(msg => {
+              if (msg.id === aiMsgId) {
+                return { ...msg, content: msg.content + chunk };
+              }
+              return msg;
+            }));
+          }
         }
       }
       

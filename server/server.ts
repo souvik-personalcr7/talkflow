@@ -78,10 +78,10 @@ server.listen(PORT, () => {
   console.log(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
 
   // Automated Keep-Alive for free-tier cloud deployments (Render, Railway, Fly.io)
-  // Render spins down after 15 mins of inactivity. Pinging every 14 mins keeps it warm 24/7!
+  // Render spins down after 15 mins of inactivity. Pinging every 9 mins keeps it reliably warm.
   const backendUrl = process.env.RENDER_EXTERNAL_URL || process.env.BACKEND_URL || process.env.SERVER_URL;
   if (backendUrl) {
-    const PING_INTERVAL = 14 * 60 * 1000; // 14 minutes
+    const PING_INTERVAL = 9 * 60 * 1000; // 9 minutes
     const clientLib = backendUrl.startsWith('https') ? https : http;
     setInterval(() => {
       clientLib.get(`${backendUrl}/api/health`, (res) => {
@@ -90,6 +90,6 @@ server.listen(PORT, () => {
         console.log(`[Keep-Alive] Ping warning: ${err.message}`);
       });
     }, PING_INTERVAL);
-    console.log(`[Keep-Alive] Configured for ${backendUrl} every 14 minutes`);
+    console.log(`[Keep-Alive] Configured for ${backendUrl} every 9 minutes`);
   }
 });
