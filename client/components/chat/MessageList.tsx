@@ -49,7 +49,7 @@ export default function MessageList({ selectedUser, activeConversation, messages
   return (
     <div 
       ref={scrollRef}
-      className="flex-1 min-h-0 overflow-y-auto bg-gray-50 dark:bg-slate-900 p-4 md:p-6 transition-colors"
+      className="flex-1 min-h-0 overflow-y-auto overscroll-contain bg-gray-50 dark:bg-slate-900 p-4 md:p-6 transition-colors"
     >
       {messages.length === 0 ? (
         <div className="h-full flex flex-col items-center justify-center text-center">

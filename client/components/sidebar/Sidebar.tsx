@@ -104,7 +104,7 @@ export default function Sidebar({ onSelectUser, selectedUserId, unreadCounts, me
       </div>
 
       {/* Lists */}
-      <div className="flex-1 min-h-0 overflow-y-auto">
+      <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain">
         {activeTab === 'people' ? (
           <UserList 
             users={users} 
@@ -127,7 +127,7 @@ export default function Sidebar({ onSelectUser, selectedUserId, unreadCounts, me
       {/* Footer Current User */}
       {currentUser && (
         <>
-          <div className="p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:pb-3 border-t border-slate-200/80 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900 flex items-center justify-between transition-colors flex-shrink-0 sticky bottom-0 z-20">
+          <div className="p-3 pb-[max(0.75rem,env(safe-area-inset-bottom))] sm:pb-3 border-t border-slate-200/80 dark:border-slate-800 bg-slate-50/60 dark:bg-slate-900 flex items-center justify-between transition-colors flex-shrink-0 mt-auto sticky bottom-0 z-20">
             <div 
               className="flex items-center min-w-0 cursor-pointer group flex-1 mr-2 p-1 rounded-lg hover:bg-slate-100/80 dark:hover:bg-slate-800/80 transition-colors"
               onClick={() => setIsProfileModalOpen(true)}

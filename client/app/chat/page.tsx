@@ -64,7 +64,7 @@ export default function ChatDashboard() {
 
   return (
     <CallProvider>
-      <div className="h-screen h-[100dvh] max-h-screen w-full flex bg-slate-50 dark:bg-slate-950 overflow-hidden font-sans transition-colors relative">
+      <div className="fixed inset-0 w-full h-[100dvh] max-h-[100dvh] flex bg-slate-50 dark:bg-slate-950 overflow-hidden font-sans transition-colors">
         <CallModal />
         
         <div className={`w-full md:w-80 lg:w-88 xl:w-96 h-full max-h-full flex-shrink-0 flex flex-col overflow-hidden border-r border-slate-200/80 dark:border-slate-800 ${selectedUser ? 'hidden md:flex' : 'flex'}`}>
